@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 // theme
 import { bgGradient } from 'src/theme/css';
-import ComStats from 'src/assets/imgs/comstats.jpg';
 
 // ----------------------------------------------------------------------
 

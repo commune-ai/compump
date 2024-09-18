@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
@@ -10,8 +9,6 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
-// utils
-import { fShortenString } from 'src/utils/format-address';
 // _mock
 import { _socials } from 'src/_mock';
 // assets
