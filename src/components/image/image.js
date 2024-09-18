@@ -46,7 +46,7 @@ const Image = forwardRef(
         height: 1,
         zIndex: 1,
         position: 'absolute',
-        background: overlay || alpha(theme.palette.grey[900], 0.48),
+        background: overlay || alpha(theme.palette.grey[900], 0),
       },
     };
 
@@ -68,7 +68,8 @@ const Image = forwardRef(
         effect={disabledEffect ? undefined : effect}
         useIntersectionObserver={useIntersectionObserver}
         wrapperClassName={wrapperClassName || 'component-image-wrapper'}
-        placeholderSrc={disabledEffect ? '/assets/transparent.png' : '/assets/placeholder.svg'}
+        // placeholderSrc={disabledEffect ? '/assets/transparent.png' : '/assets/placeholder.svg'}
+        placeholderSrc="/assets/tokenPlaceHolder.png"
         //
         sx={{
           width: 1,

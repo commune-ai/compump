@@ -2,7 +2,6 @@
 
 import PropTypes from 'prop-types';
 // auth
-import { AuthGuard } from 'src/auth/guard';
 // components
 import DashboardLayout from 'src/layouts/dashboard';
 

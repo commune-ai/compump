@@ -75,7 +75,7 @@ export default function Header({ onOpenNav }) {
         />
         {/* <SettingsButton /> */}
 
-        <w3m-button style={{ backgroundColor: (theme) => { theme.palette.primary.main } }} />
+        <w3m-button />
       </Stack>
     </>
   );

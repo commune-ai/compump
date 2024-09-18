@@ -1,5 +1,5 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-import { arbitrum, mainnet } from 'wagmi/chains'
+import { arbitrum, mainnet, sepolia } from 'wagmi/chains'
 
 
 
@@ -14,7 +14,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const chains = [mainnet, arbitrum]
+const chains = [sepolia]
 export const config = defaultWagmiConfig({
   chains,
   projectId,

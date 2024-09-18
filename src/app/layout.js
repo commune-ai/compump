@@ -1,13 +1,8 @@
-'use client'
 // scrollbar
 import 'simplebar-react/dist/simplebar.min.css';
 
 // image
 import 'react-lazy-load-image-component/src/effects/blur.css';
-
-
-import { config } from '../config'
-import { AppKitProvider } from '../context'
 
 // ----------------------------------------------------------------------
 
@@ -18,16 +13,16 @@ import { primaryFont } from 'src/theme/typography';
 // components
 import ProgressBar from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
+import SnackbarProvider from 'src/components/snackbar/snackbar-provider';
 import { SettingsProvider, SettingsDrawer } from 'src/components/settings';
 // auth
-import { AuthProvider, AuthConsumer } from 'src/auth/context/jwt';
+import { AppKitProvider } from '../context';
 
 // ----------------------------------------------------------------------
 
 export const metadata = {
   title: 'Meme coin launchpad',
-  description:
-    'The Great Meme coin generator!',
+  description: 'The Great Meme coin generator!',
   keywords: 'react,meme,launchpad,EVM,blockchain,ICO,crowdfunding',
   themeColor: '#000000',
   manifest: '/manifest.json',
@@ -78,9 +73,11 @@ export default function RootLayout({ children }) {
         >
           <ThemeProvider>
             <MotionLazy>
-              <SettingsDrawer />
-              <ProgressBar />
-              <AppKitProvider>{children}</AppKitProvider>
+              <SnackbarProvider>
+                <SettingsDrawer />
+                <ProgressBar />
+                <AppKitProvider>{children}</AppKitProvider>
+              </SnackbarProvider>
             </MotionLazy>
           </ThemeProvider>
         </SettingsProvider>

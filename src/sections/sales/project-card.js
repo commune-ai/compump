@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useCallback } from 'react';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -10,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 // utils
-import { fShortenNumber } from 'src/utils/format-number';
+import { fShortenString } from 'src/utils/format-address';
 // _mock
 import { _socials } from 'src/_mock';
 // assets
@@ -19,19 +20,85 @@ import { AvatarShape } from 'src/assets/illustrations';
 import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
 
+import { useRouter } from 'src/routes/hooks';
+
 // ----------------------------------------------------------------------
 
-export default function ProjectCard({ pool }) {
+export default function ProjectCard({ module }) {
   const theme = useTheme();
+  const router = useRouter();
+  const {
+    moduleAddress,
+    tokeName,
+    token,
+    tokenSymbol,
+    totalRaised,
+    totalSupply,
+    moduleDetails,
+    holders,
+    emission,
+  } = module;
+  // console.log("tokeName", tokeName)
+  const logoURL = moduleDetails.toString().split('$#$')[0];
+  const facebook = moduleDetails.toString().split('$#$')[1];
+  const linkedin = moduleDetails.toString().split('$#$')[2];
+  const instagram = moduleDetails.toString().split('$#$')[3];
+  const twitter = moduleDetails.toString().split('$#$')[4];
+  const emissionByPercent = Number(emission) / 10 ** 4;
+  const socials = [];
+  if (facebook) {
+    socials.push({
+      color: '#1877F2',
+      icon: 'eva:facebook-fill',
+      name: 'FaceBook',
+      path: facebook,
+      value: 'facebook',
+    });
+  }
+  if (linkedin) {
+    socials.push({
+      color: '#007EBB',
+      icon: 'eva:linkedin-fill',
+      name: 'Linkedin',
+      path: linkedin,
+      value: 'linkedin',
+    });
+  }
+  if (instagram) {
+    socials.push({
+      color: '#E02D69',
+      icon: 'ant-design:instagram-filled',
+      name: 'Instagram',
+      path: instagram,
+      value: 'instagram',
+    });
+  }
 
-  const { name, coverUrl, role, totalFollowers, totalPosts, avatarUrl, totalFollowing } = pool;
-
+  if (twitter) {
+    socials.push({
+      color: '#00AAEC',
+      icon: 'eva:twitter-fill',
+      name: 'Twitter',
+      path: twitter,
+      value: 'twitter',
+    });
+  }
+  const handleModuleDetail = useCallback(() => {
+    router.push(`/dashboard/${moduleAddress}/detail`);
+  }, [moduleAddress, router]);
   return (
-    <Card sx={{
-      textAlign: 'center', cursor: 'pointer', transition: 'transform 0.3s ease', '&:hover': {
-        transform: 'translateY(-10px)', boxShadow: 9 // Move the card up when hovered
-      }
-    }}>
+    <Card
+      sx={{
+        textAlign: 'center',
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-10px)',
+          boxShadow: 9, // Move the card up when hovered
+        },
+      }}
+      onClick={() => handleModuleDetail()}
+    >
       <Box sx={{ position: 'relative' }}>
         <AvatarShape
           sx={{
@@ -45,8 +112,8 @@ export default function ProjectCard({ pool }) {
         />
 
         <Avatar
-          alt={name}
-          src={avatarUrl}
+          alt={tokeName}
+          src="/assets/chains/eth-coin2.png"
           sx={{
             width: 64,
             height: 64,
@@ -60,8 +127,8 @@ export default function ProjectCard({ pool }) {
         />
 
         <Image
-          src={coverUrl}
-          alt={coverUrl}
+          src={logoURL}
+          alt={logoURL}
           ratio="16/9"
           overlay={alpha(theme.palette.grey[900], 0.1)}
         />
@@ -69,14 +136,14 @@ export default function ProjectCard({ pool }) {
 
       <ListItemText
         sx={{ mt: 7, mb: 1 }}
-        primary={name}
-        secondary={role}
+        primary={tokeName}
+        secondary={tokenSymbol}
         primaryTypographyProps={{ typography: 'subtitle1' }}
         secondaryTypographyProps={{ component: 'span', mt: 0.5 }}
       />
 
       <Stack direction="row" alignItems="center" justifyContent="center" sx={{ mb: 2.5 }}>
-        {_socials.map((social) => (
+        {socials.map((social) => (
           <IconButton
             key={social.name}
             sx={{
@@ -85,6 +152,7 @@ export default function ProjectCard({ pool }) {
                 bgcolor: alpha(social.color, 0.08),
               },
             }}
+            onClick={() => window.open(social.path)}
           >
             <Iconify icon={social.icon} />
           </IconButton>
@@ -100,30 +168,26 @@ export default function ProjectCard({ pool }) {
       >
         <div>
           <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Follower
+            Total Stakers
           </Typography>
-          {fShortenNumber(totalFollowers)}
+          {holders.length}
         </div>
 
         <div>
           <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Following
+            Total Staked
           </Typography>
 
-          {fShortenNumber(totalFollowing)}
+          {Number(totalRaised)}
         </div>
 
         <div>
           <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Total Post
+            Emission
           </Typography>
-          {fShortenNumber(totalPosts)}
+          {emissionByPercent}%
         </div>
       </Box>
     </Card>
   );
 }
-
-ProjectCard.propTypes = {
-  pool: PropTypes.object,
-};

@@ -4,15 +4,8 @@
     "browser": true,
     "es2021": true
   },
-  "plugins": [
-    "unused-imports",
-    "prettier"
-  ],
-  "extends": [
-    "airbnb",
-    "airbnb/hooks",
-    "prettier"
-  ],
+  "plugins": ["unused-imports", "prettier"],
+  "extends": ["airbnb", "airbnb/hooks", "prettier"],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -23,29 +16,26 @@
       "impliedStrict": true
     },
     "babelOptions": {
-      "presets": [
-        "@babel/preset-react"
-      ]
+      "presets": ["@babel/preset-react"]
     }
   },
   "settings": {
     "import/resolver": {
       "alias": {
-        "map": [
-          [
-            "src",
-            "./src"
-          ]
-        ],
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".json"
-        ]
+        "map": [["src", "./src"]],
+        "extensions": [".js", ".jsx", ".json"]
       }
     }
   },
   "rules": {
+    "react/prop-types": "off",
+    "no-unsafe-optional-chaining": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-unused-expressions": "off",
+    "spaced-comment": "off",
+    "react/self-closing-comp": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "prefer-template": "off",
     "no-alert": 0,
     "camelcase": 0,
     "no-console": 0,
