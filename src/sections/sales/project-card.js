@@ -13,6 +13,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { _socials } from 'src/_mock';
 // assets
 import { AvatarShape } from 'src/assets/illustrations';
+import 'src/assets/css/index.css';
 // components
 import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
@@ -26,7 +27,7 @@ export default function ProjectCard({ module }) {
   const router = useRouter();
   const {
     moduleAddress,
-    tokeName,
+    tokenName,
     token,
     tokenSymbol,
     totalRaised,
@@ -42,52 +43,18 @@ export default function ProjectCard({ module }) {
   const instagram = moduleDetails.toString().split('$#$')[3];
   const twitter = moduleDetails.toString().split('$#$')[4];
   const emissionByPercent = Number(emission) / 10 ** 4;
-  const socials = [];
-  if (facebook) {
-    socials.push({
-      color: '#1877F2',
-      icon: 'eva:facebook-fill',
-      name: 'FaceBook',
-      path: facebook,
-      value: 'facebook',
-    });
-  }
-  if (linkedin) {
-    socials.push({
-      color: '#007EBB',
-      icon: 'eva:linkedin-fill',
-      name: 'Linkedin',
-      path: linkedin,
-      value: 'linkedin',
-    });
-  }
-  if (instagram) {
-    socials.push({
-      color: '#E02D69',
-      icon: 'ant-design:instagram-filled',
-      name: 'Instagram',
-      path: instagram,
-      value: 'instagram',
-    });
-  }
-
-  if (twitter) {
-    socials.push({
-      color: '#00AAEC',
-      icon: 'eva:twitter-fill',
-      name: 'Twitter',
-      path: twitter,
-      value: 'twitter',
-    });
-  }
+ 
   const handleModuleDetail = useCallback(() => {
     router.push(`/dashboard/${moduleAddress}/detail`);
   }, [moduleAddress, router]);
   return (
     <Card
       sx={{
+        width: '340px',
         textAlign: 'center',
         cursor: 'pointer',
+        borderRadius:'8px',
+        boxShadow: '4px 3px 2px 3px (40,90,100,0.6)',
         transition: 'transform 0.3s ease',
         '&:hover': {
           transform: 'translateY(-10px)',
@@ -97,94 +64,88 @@ export default function ProjectCard({ module }) {
       onClick={() => handleModuleDetail()}
     >
       <Box sx={{ position: 'relative' }}>
-        <AvatarShape
-          sx={{
-            left: 0,
-            right: 0,
-            zIndex: 10,
-            mx: 'auto',
-            bottom: -26,
-            position: 'absolute',
-          }}
-        />
-
+        <Typography variant='caption' sx={{fontWeight: '900', fontSize: '40px', position:'absolute', top:'1%', left:'4%', zIndex:'99'}}>
+          {tokenSymbol}
+        </Typography>
+        {/* <Box sx={{p:3, borderRadius:'100%', opacity:'20%', bgcolor:'secondary'}}> */}
         <Avatar
-          alt={tokeName}
+          alt={tokenName}
           src="/assets/chains/eth-coin2.png"
           sx={{
             width: 64,
             height: 64,
             zIndex: 11,
-            left: 0,
-            right: 0,
-            bottom: -32,
+            top: '2%',
+            right: '2%',
             mx: 'auto',
+            backgroundColor: 'rgba(224, 233, 241, 0.6)',
+            border:'1px solid secondary',
             position: 'absolute',
           }}
         />
+        {/* </Box> */}
 
         <Image
           src={logoURL}
+          ratio="4/3"
           alt={logoURL}
-          ratio="16/9"
           overlay={alpha(theme.palette.grey[900], 0.1)}
         />
-      </Box>
+        <Box
+            display="grid"
+            sx={{ p: 2, typography: 'subtitle1'}}
+          >
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Typography variant="caption" component="div"  sx={{ color: 'text.secondary',letterSpacing: '2px', fontWeight: '400',  fontSize: '24px', textAlign: 'center', lineHeight:'0.5px'}}>
+            Total Stakers
+          </Typography>
+          <Typography variant="h6" sx={{ color: '#00FFA3', fontWeight: 'bold' }}>
+            {holders.length}
+          </Typography>
+        </Stack>
 
-      <ListItemText
+        <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+        <Typography variant="caption" component="div"  sx={{ color: 'text.secondary',letterSpacing: '2px', fontWeight: '400',  fontSize: '24px', textAlign: 'center', lineHeight:'0.5px' }}>
+        Total Staked
+          </Typography>
+          <Typography variant="h6" sx={{ color: '#00FFA3', fontWeight: 'bold' }}>
+          {Number(totalRaised)}
+          </Typography>
+        </Stack>
+
+        <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+        <Typography variant="caption" component="div"  sx={{color: 'text.secondary',letterSpacing: '2px', fontWeight: '400',  fontSize: '24px', textAlign: 'center', lineHeight:'0.5px' }}>
+        Emission
+          </Typography>
+          <Typography variant="h6" sx={{ color: '#00FFA3', fontWeight: 'bold' }}>
+            {emissionByPercent}%
+          </Typography>
+        </Stack>
+      
+        </Box> 
+       
+   
+
+
+       
+      </Box>
+      
+
+      {/* <ListItemText
         sx={{ mt: 7, mb: 1 }}
         primary={tokeName}
         secondary={tokenSymbol}
         primaryTypographyProps={{ typography: 'subtitle1' }}
         secondaryTypographyProps={{ component: 'span', mt: 0.5 }}
-      />
+      /> */}
 
-      <Stack direction="row" alignItems="center" justifyContent="center" sx={{ mb: 2.5 }}>
-        {socials.map((social) => (
-          <IconButton
-            key={social.name}
-            sx={{
-              color: social.color,
-              '&:hover': {
-                bgcolor: alpha(social.color, 0.08),
-              },
-            }}
-            onClick={() => window.open(social.path)}
-          >
-            <Iconify icon={social.icon} />
-          </IconButton>
-        ))}
-      </Stack>
+      {/* <Stack direction="row" alignItems="center" justifyContent="center" sx={{ mb: 2.5 }} className='social_icon'>
+     
+      </Stack> */}
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+      {/* <Divider sx={{ borderStyle: 'dashed' }} /> */}
 
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(3, 1fr)"
-        sx={{ py: 3, typography: 'subtitle1' }}
-      >
-        <div>
-          <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Total Stakers
-          </Typography>
-          {holders.length}
-        </div>
-
-        <div>
-          <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Total Staked
-          </Typography>
-
-          {Number(totalRaised)}
-        </div>
-
-        <div>
-          <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Emission
-          </Typography>
-          {emissionByPercent}%
-        </div>
-      </Box>
+     
     </Card>
   );
 }

@@ -4,21 +4,27 @@ import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import { Box } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 // theme
 import { bgBlur } from 'src/theme/css';
 // hooks
 import { useOffSetTop } from 'src/hooks/use-off-set-top';
 import { useResponsive } from 'src/hooks/use-responsive';
+import { useSearchFilter } from 'src/context/SearchFilterContext';
 // components
 import Logo from 'src/components/logo';
+import CreateForm from 'src/sections/create/create-dialog';
 import SvgColor from 'src/components/svg-color';
 import { useSettingsContext } from 'src/components/settings';
 import BaseOptions from 'src/components/settings/drawer/base-option';
+import SearchBar from 'src/components/search-bar';
+import TabsComponent from 'src/components/tabs';
+import CreateOverview from 'src/sections/create/create-overview';
 //
 import { HEADER, NAV } from '../config-layout';
 import {
-  Searchbar,
+  Searchbar, 
   AccountPopover,
   SettingsButton,
   LanguagePopover,
@@ -28,11 +34,11 @@ import {
 
 // ----------------------------------------------------------------------
 
-export default function Header({ onOpenNav }) {
+export default function Header({ onOpenNav  }) {
   const theme = useTheme();
+  const { filters, handleFilterPublish, setSearchQuery, filteredMyStatsLength,  filteredStatsLength } = useSearchFilter();  
 
   const settings = useSettingsContext();
-
   const isNavHorizontal = settings.themeLayout === 'horizontal';
 
   const isNavMini = settings.themeLayout === 'mini';
@@ -42,6 +48,10 @@ export default function Header({ onOpenNav }) {
   const offset = useOffSetTop(HEADER.H_DESKTOP);
 
   const offsetTop = offset && !isNavHorizontal;
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
 
   const renderContent = (
     <>
@@ -54,7 +64,40 @@ export default function Header({ onOpenNav }) {
       )} */}
 
       <Logo />
-
+      <Stack
+        direction="row"               
+        justifyContent="center"        
+        alignItems="center"            
+        sx={{
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+          width: '100%',
+          marginLeft: '20px',
+          gap: '30px',
+        }}
+      >
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{
+            marginRight:'10%',
+            paddingLeft:'10%',
+            width: '100%', 
+            gap: '10%',
+          }}
+        >
+          <CreateForm/>
+          <TabsComponent
+            filters={filters}
+            handleFilterPublish={handleFilterPublish}
+            filteredStatsLength={filteredStatsLength}
+            filteredMyStatsLength={filteredMyStatsLength}
+          />
+          <SearchBar onSearch={handleSearch} />
+        </Stack>
+      </Stack>
+ 
       <Stack
         flexGrow={1}
         direction="row"
@@ -62,17 +105,20 @@ export default function Header({ onOpenNav }) {
         justifyContent="flex-end"
         spacing={{ xs: 0.5, sm: 1 }}
       >
+        {/* Right-hand side content */}
+    
+        
         {/* <LanguagePopover /> */}
 
         {/* <NotificationsPopover /> */}
 
         {/* <ContactsPopover /> */}
-        <BaseOptions
-          value={settings.themeMode}
+        {/* <BaseOptions
+          value='dark'
           onChange={(newValue) => settings.onUpdate('themeMode', newValue)}
           options={['light', 'dark']}
           icons={['sun', 'moon']}
-        />
+        /> */}
         {/* <SettingsButton /> */}
 
         <w3m-button />

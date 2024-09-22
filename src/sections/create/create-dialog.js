@@ -138,8 +138,8 @@ export default function CreateForm() {
   });
   return (
     <>
-      <Button variant="contained" color="primary" onClick={dialog.onTrue}>
-        Create Meme Coin & Module
+      <Button variant="contained" color="primary" onClick={dialog.onTrue} sx={{padding: '5px 15px', fontSize: "20px", minWidth:'140px'}}>
+      Create Coin
       </Button>
       <Dialog open={dialog.value} onClose={dialog.onFalse}>
         {isSubmitting && (
