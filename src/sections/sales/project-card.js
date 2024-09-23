@@ -1,32 +1,36 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
 // @mui
-import { alpha, useTheme } from '@mui/material/styles';
+import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 // _mock
 import { _socials } from 'src/_mock';
 // assets
-import { AvatarShape } from 'src/assets/illustrations';
 // components
 import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
 
-import { useRouter } from 'src/routes/hooks';
+import { usePopover } from 'src/components/custom-popover';
+import { contract } from '../../constant/contract';
+import { fShortenLink } from '../../utils/format-address';
+import UserAction from '../module/user-action';
+import AdminAction from '../module/admin-action';
 
 // ----------------------------------------------------------------------
 
-export default function ProjectCard({ module }) {
-  const theme = useTheme();
-  const router = useRouter();
+export default function ProjectCard({ module, setUpdater }) {
+  const { address } = useAccount();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // const theme = useTheme();
+  // const router = useRouter();
   const {
     moduleAddress,
-    tokeName,
+    tokenName,
     token,
     tokenSymbol,
     totalRaised,
@@ -34,13 +38,28 @@ export default function ProjectCard({ module }) {
     moduleDetails,
     holders,
     emission,
+    creator,
   } = module;
-  // console.log("tokeName", tokeName)
+  useEffect(() => {
+    if (address && address === creator) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+  }, [address, module]);
+  // // console.log("tokenName", tokenName)
   const logoURL = moduleDetails.toString().split('$#$')[0];
   const facebook = moduleDetails.toString().split('$#$')[1];
   const linkedin = moduleDetails.toString().split('$#$')[2];
   const instagram = moduleDetails.toString().split('$#$')[3];
   const twitter = moduleDetails.toString().split('$#$')[4];
+  let site = '';
+  let github = '';
+  if (moduleDetails.toString().split('$#$').length > 5) {
+    site = moduleDetails.toString().split('$#$')[5];
+    github = moduleDetails.toString().split('$#$')[6];
+  }
+
   const emissionByPercent = Number(emission) / 10 ** 4;
   const socials = [];
   if (facebook) {
@@ -80,111 +99,191 @@ export default function ProjectCard({ module }) {
       value: 'twitter',
     });
   }
-  const handleModuleDetail = useCallback(() => {
-    router.push(`/dashboard/${moduleAddress}/detail`);
-  }, [moduleAddress, router]);
-  return (
-    <Card
-      sx={{
-        textAlign: 'center',
-        cursor: 'pointer',
-        transition: 'transform 0.3s ease',
-        '&:hover': {
-          transform: 'translateY(-10px)',
-          boxShadow: 9, // Move the card up when hovered
-        },
-      }}
-      onClick={() => handleModuleDetail()}
+
+  const popover = usePopover();
+
+  const renderSocials = (
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="center"
+      sx={{ mb: 2.5, top: 8, right: 8, zIndex: 9, position: 'absolute' }}
     >
-      <Box sx={{ position: 'relative' }}>
-        <AvatarShape
+      {socials?.map((social) => (
+        <IconButton
+          key={social.name}
           sx={{
-            left: 0,
-            right: 0,
-            zIndex: 10,
-            mx: 'auto',
-            bottom: -26,
-            position: 'absolute',
+            color: social.color,
+            '&:hover': {
+              bgcolor: alpha(social.color, 0.08),
+            },
+            borderRadius: 5,
+            bgcolor: 'warning.lighter',
           }}
-        />
+          onClick={() => window.open(social.path)}
+        >
+          <Iconify icon={social.icon} />
+        </IconButton>
+      ))}
+    </Stack>
+    // </Stack>
+  );
 
-        <Avatar
-          alt={tokeName}
-          src="/assets/chains/eth-coin2.png"
-          sx={{
-            width: 64,
-            height: 64,
-            zIndex: 11,
-            left: 0,
-            right: 0,
-            bottom: -32,
-            mx: 'auto',
-            position: 'absolute',
-          }}
-        />
+  const renderEmission = (
+    <Stack
+      direction="row"
+      alignItems="center"
+      sx={{
+        top: 8,
+        left: 8,
+        zIndex: 9,
+        borderRadius: 1,
+        bgcolor: 'grey.800',
+        position: 'absolute',
+        p: '2px 6px 2px 4px',
+        color: 'common.white',
+        typography: 'subtitle2',
+      }}
+    >
+      <Box component="span" sx={{ mr: 0.25 }}>
+        {emissionByPercent} % daily
+      </Box>
+    </Stack>
+  );
 
+  const renderImages = (
+    <Stack
+      spacing={0.5}
+      direction="row"
+      sx={{
+        p: (theme) => theme.spacing(1, 1, 0, 1),
+      }}
+    >
+      <Stack flexGrow={1} sx={{ position: 'relative' }}>
+        {renderEmission}
+        {renderSocials}
         <Image
-          src={logoURL}
           alt={logoURL}
-          ratio="16/9"
-          overlay={alpha(theme.palette.grey[900], 0.1)}
+          src={logoURL}
+          sx={{ borderRadius: 1, height: 164, width: 1 }}
+          overlay={alpha('#00AAEC', 0.1)}
         />
-      </Box>
-
-      <ListItemText
-        sx={{ mt: 7, mb: 1 }}
-        primary={tokeName}
-        secondary={tokenSymbol}
-        primaryTypographyProps={{ typography: 'subtitle1' }}
-        secondaryTypographyProps={{ component: 'span', mt: 0.5 }}
-      />
-
-      <Stack direction="row" alignItems="center" justifyContent="center" sx={{ mb: 2.5 }}>
-        {socials.map((social) => (
-          <IconButton
-            key={social.name}
-            sx={{
-              color: social.color,
-              '&:hover': {
-                bgcolor: alpha(social.color, 0.08),
-              },
-            }}
-            onClick={() => window.open(social.path)}
-          >
-            <Iconify icon={social.icon} />
-          </IconButton>
-        ))}
       </Stack>
+      {/* <Stack spacing={0.5}>
+        <Image alt={images[1]} src={images[1]} ratio="1/1" sx={{ borderRadius: 1, width: 80 }} />
+        <Image alt={images[2]} src={images[2]} ratio="1/1" sx={{ borderRadius: 1, width: 80 }} />
+      </Stack> */}
+    </Stack>
+  );
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
+  const renderTexts = (
+    <ListItemText
+      sx={{
+        p: (theme) => theme.spacing(2.5, 2.5, 2, 2.5),
+        cursor: 'pointer',
+      }}
+      onClick={() => window.open(contract.default.scanURL + token)}
+      primary={`${tokenName} (${tokenSymbol})`}
+      // secondary={
+      //   // <Link component={RouterLink} color="inherit">
+      //   //   {name}
+      //   // </Link>
+      // }
+      primaryTypographyProps={{
+        typography: 'caption',
+        color: 'text.disabled',
+      }}
+      secondaryTypographyProps={{
+        mt: 1,
+        noWrap: true,
+        component: 'span',
+        color: 'text.primary',
+        typography: 'subtitle1',
+      }}
+    />
+  );
 
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(3, 1fr)"
-        sx={{ py: 3, typography: 'subtitle1' }}
+  const renderInfo = (
+    <Stack
+      spacing={1.5}
+      sx={{
+        position: 'relative',
+        p: (theme) => theme.spacing(0, 2.5, 2.5, 2.5),
+      }}
+    >
+      {/* <IconButton onClick={popover.onOpen} sx={{ position: 'absolute', bottom: 20, right: 8 }}>
+        <Iconify icon="eva:more-vertical-fill" />
+      </IconButton> */}
+
+      {[
+        {
+          label: fShortenLink(site),
+          icon: (
+            <Iconify
+              icon="material-symbols:captive-portal"
+              sx={{ color: 'error.main', cursor: 'pointer' }}
+              onClick={() => window.open(site)}
+            />
+          ),
+          key: 1,
+        },
+        {
+          label: fShortenLink(github),
+          icon: (
+            <Iconify
+              icon="material-symbols:deployed-code-outline-sharp"
+              sx={{ color: 'info.main', cursor: 'pointer' }}
+              onClick={() => window.open(github)}
+            />
+          ),
+          key: 2,
+        },
+        {
+          label: `${holders.length} Stakers`,
+          icon: <Iconify icon="solar:users-group-rounded-bold" sx={{ color: 'primary.main' }} />,
+          key: 3,
+        },
+      ].map((item) => (
+        <Stack
+          key={item.key}
+          spacing={1}
+          direction="row"
+          alignItems="center"
+          sx={{ typography: 'body2' }}
+        >
+          {item.icon}
+          {item.label}
+        </Stack>
+      ))}
+    </Stack>
+  );
+
+  return (
+    <>
+      <Card
+        sx={{
+          transition: 'transform 0.9s ease',
+          '&:hover': {
+            border: 1,
+            borderColor: 'primary.main',
+            boxShadow: 9, // Move the card up when hovered
+          },
+        }}
       >
-        <div>
-          <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Total Stakers
-          </Typography>
-          {holders.length}
-        </div>
+        {renderImages}
 
-        <div>
-          <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Total Staked
-          </Typography>
+        {renderTexts}
 
-          {Number(totalRaised)}
-        </div>
-
-        <div>
-          <Typography variant="caption" component="div" sx={{ mb: 0.5, color: 'text.secondary' }}>
-            Emission
-          </Typography>
-          {emissionByPercent}%
-        </div>
-      </Box>
-    </Card>
+        {renderInfo}
+        {isAdmin ? (
+          <AdminAction
+            module={{ ...module, logoURL, socials, site, github, emissionByPercent }}
+            setUpdater={setUpdater}
+          ></AdminAction>
+        ) : (
+          <UserAction module={module} setUpdater={setUpdater}></UserAction>
+        )}
+      </Card>
+    </>
   );
 }

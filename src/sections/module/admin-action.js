@@ -26,24 +26,28 @@ import { config } from 'src/config';
 
 import moduleAbi from '../../constant/module.json';
 
-export default function AdminAction({ stats, setUpdater, moduleAddress }) {
+export default function AdminAction({ module, setUpdater }) {
   const { address } = useAccount();
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
     emission: Yup.number().min(0, 'Emission must not be below 0').required('Emission is required'),
     logoURL: Yup.string().url('Must be a valid URL').nullable(),
+    site: Yup.string().url('Must be a valid URL').required('Site URL required'),
+    github: Yup.string().url('Must be a valid URL').required('Code link required'),
     facebook: Yup.string(),
     linkedin: Yup.string(),
     instagram: Yup.string(),
     twitter: Yup.string(),
   });
   const defaultValues = {
-    emission: stats.moduleInfo.emission,
-    logoURL: stats.moduleInfo.logoURL,
-    facebook: stats.moduleInfo.socials?.filter((social) => social.value === 'facebook')[0]?.path,
-    linkedin: stats.moduleInfo.socials?.filter((social) => social.value === 'linkedin')[0]?.path,
-    instagram: stats.moduleInfo.socials?.filter((social) => social.value === 'instagram')[0]?.path,
-    twitter: stats.moduleInfo.socials?.filter((social) => social.value === 'twitter')[0]?.path,
+    emission: module.emissionByPercent,
+    logoURL: module.logoURL,
+    site: module.site,
+    github: module.github,
+    facebook: module.socials?.filter((social) => social.value === 'facebook')[0]?.path,
+    linkedin: module.socials?.filter((social) => social.value === 'linkedin')[0]?.path,
+    instagram: module.socials?.filter((social) => social.value === 'instagram')[0]?.path,
+    twitter: module.socials?.filter((social) => social.value === 'twitter')[0]?.path,
   };
   const dialog = useBoolean();
   const methods = useForm({
@@ -61,35 +65,37 @@ export default function AdminAction({ stats, setUpdater, moduleAddress }) {
   } = methods;
   useEffect(() => {
     reset({
-      emission: stats.moduleInfo.emission, // Update the form with new emission value
-      logoURL: stats.moduleInfo.logoURL,
-      facebook: stats.moduleInfo.socials?.filter((social) => social.value === 'facebook')[0]?.path,
-      linkedin: stats.moduleInfo.socials?.filter((social) => social.value === 'linkedin')[0]?.path,
-      instagram: stats.moduleInfo.socials?.filter((social) => social.value === 'instagram')[0]
-        ?.path,
-      twitter: stats.moduleInfo.socials?.filter((social) => social.value === 'twitter')[0]?.path,
+      emission: module.emissionByPercent, // Update the form with new emission value
+      logoURL: module.logoURL,
+      site: module.site,
+      github: module.github,
+      facebook: module.socials?.filter((social) => social.value === 'facebook')[0]?.path,
+      linkedin: module.socials?.filter((social) => social.value === 'linkedin')[0]?.path,
+      instagram: module.socials?.filter((social) => social.value === 'instagram')[0]?.path,
+      twitter: module.socials?.filter((social) => social.value === 'twitter')[0]?.path,
     });
-  }, [stats, reset]);
+  }, [module, reset]);
   const onSubmit = handleSubmit(async (data) => {
     //to see if owner
     // const result = await readContract(config, {
     //   abi: moduleAbi,
-    //   address: moduleAddress,
+    //   address: module.moduleAddress,
     //   functionName: 'owner',
     // });
     // console.log('result', result);
 
     try {
       if (address) {
-        const moduleDetails = `${data.logoURL}$#$${data.facebook}$#$${data.linkedin}$#$${data.instagram}$#$${data.twitter}`;
+        const moduleDetails = `${data.logoURL}$#$${data.facebook}$#$${data.linkedin}$#$${data.instagram}$#$${data.twitter}$#$${data.site}$#$${data.github}`;
         const emission = data.emission * 10 ** 4;
         const para = [emission, moduleDetails];
         const result = await writeContract(config, {
           abi: moduleAbi,
-          address: moduleAddress,
+          address: module.moduleAddress,
           functionName: 'updateEmissionModuleDetails',
           args: para,
         });
+        console.log('result', result);
         const response = await waitForTransactionReceipt(config, { hash: result });
         if (response != null) {
           if (response && response.status && response.status === 'success') {
@@ -103,11 +109,12 @@ export default function AdminAction({ stats, setUpdater, moduleAddress }) {
           }
         }
       } else {
-        enqueueSnackbar(`Don't have enough ${stats.moduleInfo.symbol} staked in this module!`, {
-          variant: 'error',
+        enqueueSnackbar(`Please connect wallet`, {
+          variant: 'info',
         });
       }
     } catch (e) {
+      console.log('eee', e);
       if (e.message.includes('User rejected the request'))
         enqueueSnackbar(`User rejected the request!`, {
           variant: 'info',
@@ -117,21 +124,27 @@ export default function AdminAction({ stats, setUpdater, moduleAddress }) {
   const handleDistribute = async () => {
     try {
       if (address) {
-        const result = await writeContract(config, {
-          abi: moduleAbi,
-          address: moduleAddress,
-          functionName: 'distributeRewards',
-        });
-        const response = await waitForTransactionReceipt(config, { hash: result });
-        if (response != null) {
-          if (response && response.status && response.status === 'success') {
-            enqueueSnackbar('Distributed Successfully!', { variant: 'success' });
-            setUpdater(new Date());
+        if (module.holders.length > 0) {
+          const result = await writeContract(config, {
+            abi: moduleAbi,
+            address: module.moduleAddress,
+            functionName: 'distributeRewards',
+          });
+          const response = await waitForTransactionReceipt(config, { hash: result });
+          if (response != null) {
+            if (response && response.status && response.status === 'success') {
+              enqueueSnackbar('Distributed Successfully!', { variant: 'success' });
+              setUpdater(new Date());
+            }
           }
+        } else {
+          enqueueSnackbar(`Don't have stakers to give rewards`, {
+            variant: 'info',
+          });
         }
       } else {
-        enqueueSnackbar(`Don't have enough ${stats.moduleInfo.symbol} staked in this module!`, {
-          variant: 'error',
+        enqueueSnackbar(`Please connect wallet`, {
+          variant: 'info',
         });
       }
     } catch (e) {
@@ -143,62 +156,77 @@ export default function AdminAction({ stats, setUpdater, moduleAddress }) {
   };
 
   return (
-    <Stack direction="row" spacing={2}>
-      <Button
-        fullWidth
-        disabled={Number(stats.moduleInfo?.totalStaked) === 0}
-        size="large"
-        color="warning"
-        variant="contained"
-        // startIcon={<Iconify icon="solar:cart-plus-bold" width={24} />}
-        onClick={handleDistribute}
-        sx={{ whiteSpace: 'nowrap' }}
-      >
-        Distribute Rewards
-      </Button>
+    <Stack
+      spacing={1.5}
+      sx={{
+        position: 'relative',
+        p: (theme) => theme.spacing(0, 2.5, 2.5, 2.5),
+      }}
+    >
+      <Stack direction="row" spacing={2}>
+        <Button
+          fullWidth
+          disabled={Number(module?.totalStaked) === 0}
+          size="large"
+          color="warning"
+          variant="contained"
+          // startIcon={<Iconify icon="solar:cart-plus-bold" width={24} />}
+          onClick={handleDistribute}
+          // sx={{ whiteSpace: 'nowrap' }}
+        >
+          Distribute
+        </Button>
 
-      <Button fullWidth size="large" variant="contained" onClick={dialog.onTrue}>
-        Edit Module Info
-      </Button>
-      <Dialog open={dialog.value} onClose={dialog.onFalse}>
-        {isSubmitting && (
-          <Backdrop open sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}>
-            <CircularProgress color="primary" />
-          </Backdrop>
-        )}
-        <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle p={3}>Edit Module Info</DialogTitle>
+        <Button fullWidth size="large" variant="contained" onClick={dialog.onTrue}>
+          Edit Module Info
+        </Button>
+        <Dialog open={dialog.value} onClose={dialog.onFalse}>
+          {isSubmitting && (
+            <Backdrop open sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}>
+              <CircularProgress color="primary" />
+            </Backdrop>
+          )}
+          <FormProvider methods={methods} onSubmit={onSubmit}>
+            <DialogTitle p={3}>Edit Module Info</DialogTitle>
 
-          <DialogContent>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-              pt={2}
-            >
-              <RHFTextField name="emission" label="Emission" />
-              <RHFTextField name="logoURL" label="Image Url" />
-              <RHFTextField name="facebook" label="Facebook" />
-              <RHFTextField name="linkedin" label="Linkedin" />
-              <RHFTextField name="instagram" label="Instagram" />
-              <RHFTextField name="twitter" label="Twitter/X" />
-            </Box>
-          </DialogContent>
+            <DialogContent>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                }}
+                pt={2}
+              >
+                <RHFTextField name="emission" label="Emission" />
+                <RHFTextField name="logoURL" label="Image Url" />
+                <RHFTextField name="site" label="Site Link" />
+                <RHFTextField name="github" label="Code Link" />
+                <RHFTextField name="facebook" label="Facebook" />
+                <RHFTextField name="linkedin" label="Linkedin" />
+                <RHFTextField name="instagram" label="Instagram" />
+                <RHFTextField name="twitter" label="Twitter/X" />
+              </Box>
+            </DialogContent>
 
-          <DialogActions>
-            <Button onClick={dialog.onFalse} variant="outlined" color="inherit">
-              Cancel
-            </Button>
-            <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
-              Update
-            </LoadingButton>
-          </DialogActions>
-        </FormProvider>
-      </Dialog>
+            <DialogActions>
+              <Button onClick={dialog.onFalse} variant="outlined" color="inherit">
+                Cancel
+              </Button>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                color="primary"
+                loading={isSubmitting}
+              >
+                Update
+              </LoadingButton>
+            </DialogActions>
+          </FormProvider>
+        </Dialog>
+      </Stack>
     </Stack>
   );
 }

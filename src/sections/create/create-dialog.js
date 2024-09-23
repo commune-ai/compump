@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import { Box } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
@@ -34,6 +34,8 @@ export default function CreateForm() {
     name: Yup.string().required('Token name is required'),
     symbol: Yup.string().required('Symbol is required'),
     emission: Yup.number().min(0, 'Emission must not be below 0').required('Emission is required'),
+    site: Yup.string().url('Must be a valid URL').required('Site should exist'),
+    github: Yup.string().url('Must be a valid URL').required('Code should exist'),
     avatarUrl: Yup.string().url('Must be a valid URL').nullable(),
     facebook: Yup.string(),
     linkedin: Yup.string(),
@@ -44,6 +46,8 @@ export default function CreateForm() {
     name: '',
     symbol: '',
     emission: 0.01,
+    site: '',
+    github: '',
     avatarUrl: '',
     facebook: '',
     linkedin: '',
@@ -100,7 +104,7 @@ export default function CreateForm() {
           const para = [
             tokenAddress,
             data.emission * 10 ** 4,
-            `${data.avatarUrl}$#$${data.facebook}$#$${data.linkedin}$#$${data.instagram}$#$${data.twitter}`,
+            `${data.avatarUrl}$#$${data.facebook}$#$${data.linkedin}$#$${data.instagram}$#$${data.twitter}$#$${data.site}$#$${data.github}`,
             [data.name, data.symbol],
           ];
           const result = await writeContract(config, {
@@ -115,8 +119,8 @@ export default function CreateForm() {
             if (response && response.status && response.status === 'success') {
               enqueueSnackbar('Module created successfully!', { variant: 'success' });
               const moduleAddress = response.logs[4].address;
-              dialog.onFalse;
-              router.push(`/dashboard/${moduleAddress}/detail`);
+              dialog.onFalse();
+              // router.push(`/dashboard/${moduleAddress}/detail`);
             }
           }
 
@@ -161,10 +165,27 @@ export default function CreateForm() {
               }}
               pt={2}
             >
-              <RHFTextField name="name" label="Token Name" />
-              <RHFTextField name="symbol" label="Symbol" />
-              <RHFTextField name="emission" label="Emission(% Per day)" />
+              <RHFTextField name="name" label="Token Name*" />
+              <RHFTextField name="symbol" label="Symbol*" />
+              <RHFTextField name="emission" label="Emission(% Per day)*" />
               <RHFTextField name="avatarUrl" label="Image Url" />
+              <RHFTextField name="site" label="Site Link*" />
+              <RHFTextField name="github" label="Git Link*" />
+            </Box>
+            <Box mt={3}>
+              <Divider>Socials</Divider>
+            </Box>
+
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+              pt={2}
+            >
               <RHFTextField name="facebook" label="Facebook" />
               <RHFTextField name="linkedin" label="Linkedin" />
               <RHFTextField name="instagram" label="Instagram" />

@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-
+import { useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { writeContract, waitForTransactionReceipt } from '@wagmi/core';
 
@@ -25,9 +25,17 @@ import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
 import moduleAbi from '../../constant/module.json';
 
-export default function UserAction({ stats, setUpdater, moduleAddress }) {
+import { fetchModuleInfo } from './helper/getUserModuleInfo';
+
+export default function UserAction({ module, setUpdater }) {
   const { enqueueSnackbar } = useSnackbar();
   const { address } = useAccount();
+  const [stakeUnstakeLoading, setStakeUnstakeLoading] = useState(false);
+  const [userModuleInfo, setUserMouduleInfo] = useState({
+    userStaked: 0,
+    userRewards: 0,
+    tokenBalance: 0,
+  });
   const NewUserSchema = Yup.object().shape({
     staking: Yup.number()
       .min(0.000000000000000001, 'staking must not be below 0')
@@ -47,17 +55,40 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
     trigger,
     formState: { isSubmitting },
   } = methods;
+  const handleStakeUnStake = async () => {
+    try {
+      if (address) {
+        setStakeUnstakeLoading(true);
+        const userModuleInfoTmp = await fetchModuleInfo(
+          module.moduleAddress,
+          module.token,
+          address
+        );
+        setUserMouduleInfo(userModuleInfoTmp);
+        dialog.onTrue();
+        setStakeUnstakeLoading(false);
+      } else {
+        enqueueSnackbar('Please connect wallet!', {
+          variant: 'info',
+        });
+        setStakeUnstakeLoading(false);
+      }
+    } catch (e) {
+      setStakeUnstakeLoading(false);
+      console.log('error', e);
+    }
+  };
   const handleStake = async () => {
     try {
       if (address) {
         const validation = await trigger();
         if (validation) {
           const forms = getValues();
-          if (forms.staking <= stats.tokenBalance) {
+          if (forms.staking <= userModuleInfo.tokenBalance) {
             const para = [forms.staking * 10 ** 18];
             const result = await writeContract(config, {
               abi: moduleAbi,
-              address: moduleAddress,
+              address: module.moduleAddress,
               functionName: 'stake',
               args: para,
             });
@@ -70,7 +101,7 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
               }
             }
           } else {
-            enqueueSnackbar(`Don't have enough ${stats.moduleInfo.symbol} in your wallet!`, {
+            enqueueSnackbar(`Don't have enough ${module.tokenSymbol} in your wallet!`, {
               variant: 'error',
             });
           }
@@ -93,11 +124,11 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
         const validation = await trigger();
         if (validation) {
           const forms = getValues();
-          if (forms.staking <= stats.userStaked) {
+          if (forms.staking <= userModuleInfo.userStaked) {
             const para = [forms.staking * 10 ** 18];
             const result = await writeContract(config, {
               abi: moduleAbi,
-              address: moduleAddress,
+              address: module.moduleAddress,
               functionName: 'unStake',
               args: para,
             });
@@ -110,7 +141,7 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
               }
             }
           } else {
-            enqueueSnackbar(`Don't have enough ${stats.moduleInfo.symbol} staked in this module!`, {
+            enqueueSnackbar(`Don't have enough ${module.tokenSymbol} staked in this module!`, {
               variant: 'error',
             });
           }
@@ -130,17 +161,24 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
   const handleClaim = async () => {
     try {
       if (address) {
-        const result = await writeContract(config, {
-          abi: moduleAbi,
-          address: moduleAddress,
-          functionName: 'claimReward',
-        });
-        const response = await waitForTransactionReceipt(config, { hash: result });
-        if (response != null) {
-          if (response && response.status && response.status === 'success') {
-            enqueueSnackbar('Claimed successfully!', { variant: 'success' });
-            setUpdater(new Date());
+        const userInfo = await fetchModuleInfo(module.moduleAddress, module.token, address);
+        if (userInfo.userRewards > 0) {
+          const result = await writeContract(config, {
+            abi: moduleAbi,
+            address: module.moduleAddress,
+            functionName: 'claimReward',
+          });
+          const response = await waitForTransactionReceipt(config, { hash: result });
+          if (response != null) {
+            if (response && response.status && response.status === 'success') {
+              enqueueSnackbar('Claimed successfully!', { variant: 'success' });
+              // setUpdater(new Date());
+            }
           }
+        } else {
+          enqueueSnackbar("You don't have enough rewards to claim", {
+            variant: 'info',
+          });
         }
       } else {
         enqueueSnackbar('Please connect wallet!', {
@@ -156,42 +194,36 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
   };
 
   return (
-    <>
-      <Stack direction="row">
-        <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-          Your Staked
-        </Typography>
-
-        <Typography variant="subtitle2">
-          {stats.userStaked} {stats.moduleInfo.symbol}
-        </Typography>
-      </Stack>
-      <Stack direction="row">
-        <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-          Your Accumulated Rewards
-        </Typography>
-
-        <Typography variant="subtitle2">
-          {stats.userRewards} {stats.moduleInfo.symbol}
-        </Typography>
-      </Stack>
+    <Stack
+      spacing={1.5}
+      sx={{
+        position: 'relative',
+        p: (theme) => theme.spacing(0, 2.5, 2.5, 2.5),
+      }}
+    >
       <Stack direction="row" spacing={2}>
         <Button
           fullWidth
-          disabled={Number(stats.userRewards) === 0}
+          // disabled={Number(userModuleInfo.userRewards) === 0}
           size="large"
           color="warning"
           variant="contained"
           // startIcon={<Iconify icon="solar:cart-plus-bold" width={24} />}
           onClick={handleClaim}
-          sx={{ whiteSpace: 'nowrap' }}
+          // sx={{ whiteSpace: 'nowrap' }}
         >
           Claim Rewards
         </Button>
 
-        <Button fullWidth size="large" variant="contained" onClick={dialog.onTrue}>
+        <LoadingButton
+          loading={stakeUnstakeLoading}
+          fullWidth
+          size="large"
+          variant="contained"
+          onClick={handleStakeUnStake}
+        >
           Stake/Unstake
-        </Button>
+        </LoadingButton>
         <Dialog open={dialog.value} onClose={dialog.onFalse}>
           {isSubmitting && (
             <Backdrop open sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}>
@@ -202,6 +234,33 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
             <DialogTitle p={3}>Stake/Unstake</DialogTitle>
 
             <DialogContent>
+              <Stack direction="row">
+                <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                  Your Staked
+                </Typography>
+
+                <Typography variant="body2">
+                  {userModuleInfo.userStaked} {module.tokenSymbol}
+                </Typography>
+              </Stack>
+              <Stack direction="row">
+                <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                  Your Accumulated Rewards
+                </Typography>
+
+                <Typography variant="body2">
+                  {userModuleInfo.userRewards} {module.tokenSymbol}
+                </Typography>
+              </Stack>
+              <Stack direction="row">
+                <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                  Your {module.tokenSymbol} balance
+                </Typography>
+
+                <Typography variant="body2">
+                  {userModuleInfo.tokenBalance} {module.tokenSymbol}
+                </Typography>
+              </Stack>
               <Box
                 rowGap={3}
                 columnGap={2}
@@ -246,6 +305,6 @@ export default function UserAction({ stats, setUpdater, moduleAddress }) {
           </FormProvider>
         </Dialog>
       </Stack>
-    </>
+    </Stack>
   );
 }

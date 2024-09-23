@@ -36,6 +36,7 @@
     "react/self-closing-comp": "off",
     "react-hooks/exhaustive-deps": "off",
     "prefer-template": "off",
+    "consistent-return": "off",
     "no-alert": 0,
     "camelcase": 0,
     "no-console": 0,

@@ -1,6 +1,5 @@
 'use client';
 
-import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
@@ -42,8 +41,6 @@ export default function ModuleDetailView({ moduleAddress }) {
   const stats = useModuleStats(updater, moduleAddress);
   const { address } = useAccount();
   const [isAdmin, setIsAdmin] = useState(false);
-
-  console.log('stats', stats.moduleInfo.emission);
 
   const [currentTab, setCurrentTab] = useState('description');
 
