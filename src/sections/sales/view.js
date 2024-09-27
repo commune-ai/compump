@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useAccount, useCall, useChainId } from 'wagmi';
 
 // @mui
 import Tab from '@mui/material/Tab';
@@ -11,6 +10,7 @@ import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Unstable_Grid2';
 import InputAdornment from '@mui/material/InputAdornment';
+import { Button } from '@mui/material';
 
 // components
 import Label from 'src/components/label';
@@ -19,7 +19,6 @@ import Iconify from 'src/components/iconify';
 import ProjectCard from './project-card';
 import CreateForm from '../create/create-dialog';
 import { useCommonStats, useMyStakeStats } from './helper/useStats';
-import { Button } from '@mui/material';
 // ----------------------------------------------------------------------
 import { contract } from '../../constant/contract';
 
@@ -76,7 +75,7 @@ export default function SalesList() {
   );
   const buyComp = () => {
     window.open(
-      `https://app.uniswap.org/swap?outputCurrency=${contract['default'].compToken}&chain=ethereum&use=V3`
+      `https://app.uniswap.org/swap?outputCurrency=${contract.default.compToken}&chain=ethereum&use=V3`
     );
   };
   return (

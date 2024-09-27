@@ -14,33 +14,32 @@ export const useCompInfo = () => {
     allowance: 0,
   });
   const fetchCompInfo = async () => {
-    if (address) {
-      const tokenAddress = contract[chainId].compToken;
-      const factoryAddress = contract[chainId].moduleFactory;
-      const data = await readContract(config, {
-        address: tokenAddress,
-        abi: erc20Abi,
-        functionName: 'balanceOf',
-        args: [address],
-      });
-      const data1 = await readContract(config, {
-        address: tokenAddress,
-        abi: erc20Abi,
-        functionName: 'allowance',
-        args: [address, factoryAddress],
-      });
-      const tokenBalance = Number((Number(data) / 10 ** 18).toFixed(2));
-      const allowance = Number((Number(data1) / 10 ** 18).toFixed(2));
-      setStats({ tokenBalance, allowance });
-    } else {
+    try {
+      if (address) {
+        const tokenAddress = contract[chainId].compToken;
+        const factoryAddress = contract[chainId].moduleFactory;
+        const data = await readContract(config, {
+          address: tokenAddress,
+          abi: erc20Abi,
+          functionName: 'balanceOf',
+          args: [address],
+        });
+        const data1 = await readContract(config, {
+          address: tokenAddress,
+          abi: erc20Abi,
+          functionName: 'allowance',
+          args: [address, factoryAddress],
+        });
+        const tokenBalance = Number((Number(data) / 10 ** 18).toFixed(2));
+        const allowance = Number((Number(data1) / 10 ** 18).toFixed(2));
+        setStats({ tokenBalance, allowance });
+      } else {
+        setStats({ tokenBalance: 0, allowance: 0 });
+      }
+    } catch (e) {
       setStats({ tokenBalance: 0, allowance: 0 });
     }
   };
-  try {
-  } catch (e) {
-    console.log('fetchmodule info failure', e);
-    return { tokenBalance: 0, allowance: 0 };
-  }
   useEffect(() => {
     fetchCompInfo();
     // eslint-disable-next-line

@@ -115,7 +115,7 @@ export default function UserAction({ module, setUpdater }) {
         if (validation) {
           const forms = getValues();
           let tokenAddrToStake = module.token;
-          if (forms.stakeToken == 1) {
+          if (forms.stakeToken === 1) {
             //staking module token
             if (forms.staking > userModuleInfo.tokenBalance) {
               enqueueSnackbar(`Don't have enough ${module.tokenSymbol} in your wallet!`, {
@@ -123,8 +123,8 @@ export default function UserAction({ module, setUpdater }) {
               });
               return;
             }
-          } else if (forms.stakeToken == 2) {
-            tokenAddrToStake = contract['default'].compToken;
+          } else if (forms.stakeToken === 2) {
+            tokenAddrToStake = contract.default.compToken;
             if (forms.staking > userModuleInfo.compBalance) {
               enqueueSnackbar(`Don't have enough COMP in your wallet!`, {
                 variant: 'error',
@@ -173,7 +173,7 @@ export default function UserAction({ module, setUpdater }) {
         if (validation) {
           const forms = getValues();
           let tokenAddrToStake = module.token;
-          if (forms.stakeToken == 1) {
+          if (forms.stakeToken === 1) {
             //staking module token
             if (forms.staking > userModuleInfo.userStaked) {
               enqueueSnackbar(`Don't have enough ${module.tokenSymbol} staked in this module!`, {
@@ -181,8 +181,8 @@ export default function UserAction({ module, setUpdater }) {
               });
               return;
             }
-          } else if (forms.stakeToken == 2) {
-            tokenAddrToStake = contract['default'].compToken;
+          } else if (forms.stakeToken === 2) {
+            tokenAddrToStake = contract.default.compToken;
             if (forms.staking > userModuleInfo.compStaked) {
               enqueueSnackbar(`Don't have enough COMP staked in this module!`, {
                 variant: 'error',
@@ -222,7 +222,7 @@ export default function UserAction({ module, setUpdater }) {
   };
   const redirectToBuy = () => {
     window.open(
-      `https://app.uniswap.org/#/swap?inputCurrency=${contract['default'].compToken}&outputCurrency=${module.token}&exactField=input&use=V3`
+      `https://app.uniswap.org/#/swap?inputCurrency=${contract.default.compToken}&outputCurrency=${module.token}&exactField=input&use=V3`
     );
   };
   const handleClaim = async () => {

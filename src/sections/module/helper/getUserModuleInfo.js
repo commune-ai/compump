@@ -27,7 +27,7 @@ export const fetchModuleInfo = async (moduleAddress, tokenAddress, address) => {
         address: moduleAddress,
         abi: moduleAbi,
         functionName: 'earned',
-        args: [address, contract['default'].compToken],
+        args: [address, contract.default.compToken],
       });
 
       const data3 = await readContract(config, {
@@ -37,7 +37,7 @@ export const fetchModuleInfo = async (moduleAddress, tokenAddress, address) => {
         args: [address],
       });
       const compBalTmp = await readContract(config, {
-        address: contract['default'].compToken,
+        address: contract.default.compToken,
         abi: erc20Abi,
         functionName: 'balanceOf',
         args: [address],

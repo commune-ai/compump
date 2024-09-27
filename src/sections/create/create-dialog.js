@@ -1,7 +1,6 @@
 import * as Yup from 'yup';
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 import { erc20Abi } from 'viem';
-import { useState } from 'react';
 // @mui
 import Slide from '@mui/material/Slide';
 import Button from '@mui/material/Button';
@@ -274,17 +273,17 @@ export default function CreateForm({ setUpdater }) {
         TransitionComponent={Transition}
         onClose={poolDialog.onFalse}
       >
-        <DialogTitle>{`Visit your pool created on uniswapV3?`}</DialogTitle>
+        <DialogTitle>Visit your pool created on uniswapV3?</DialogTitle>
 
         <DialogContent sx={{ color: 'text.secondary' }}>
           <div>
             -Please Save your module Address(
-            <a style={{ color: 'yellow' }} href={contract['default'].scanURL + moduleAddress}>
+            <a style={{ color: 'yellow' }} href={contract.default.scanURL + moduleAddress}>
               {moduleAddress}
             </a>
             ). You should transfer COMP token to your module to give Rewards for COMP staking.
             <br />
-            -You've created pool paired with your token and COMP on uniswap V3. You can add more
+            -You have created pool paired with your token and COMP on uniswap V3. You can add more
             liquidity there.
           </div>
         </DialogContent>

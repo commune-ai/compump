@@ -7,11 +7,9 @@ import { SERVER_URL } from '../../../constant/server';
 // });
 
 export const sendVisitInfo = async (data) => {
-  let result = axios
+  const result = axios
     .post(`${SERVER_URL}/record/module/visit`, data)
-    .then((response) => {
-      return response.data;
-    })
+    .then((response) => response.data)
     .catch((err) => {
       console.log('error', err);
       return { message: 'Error occured while trying to fetch your visit info!' };

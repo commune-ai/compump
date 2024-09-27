@@ -12,7 +12,6 @@ import IpoolAbi from '../../../constant/IUniswapV3Pool.json';
 import { sendVisitInfo } from './visitionInfoBackend';
 
 export const useVisitStats = (stats, moduleAddress) => {
-  const chainId = useChainId();
   const { address } = useAccount();
   const [visitStats, setVisitStats] = useState({});
   const fetchVisitionInfo = useCallback(async () => {
@@ -32,9 +31,9 @@ export const useVisitStats = (stats, moduleAddress) => {
         };
         const visitAllowed = await sendVisitInfo(dataToSend);
         console.log('visitAllowed', visitAllowed);
-        if (visitAllowed.status == true) {
+        if (visitAllowed.status === true) {
           setVisitStats({ message: '', type: 'allowed' });
-        } else if (visitAllowed.status == false) {
+        } else if (visitAllowed.status === false) {
           if (visitAllowed.message?.includes('Error adding visit')) {
             setVisitStats({ message: 'Backend response error', type: 'error' });
           } else {
@@ -189,7 +188,7 @@ export const useModuleStats = (update, moduleAddress) => {
 
         // Calculate current price of COMP from sqrtPriceX96
         let compPrice = 0;
-        if (positionInfo[0].toLowerCase() == contract[chainId].compToken.toLowerCase()) {
+        if (positionInfo[0].toLowerCase() === contract[chainId].compToken.toLowerCase()) {
           compPrice = (Number(sqrtPriceX96) / 2 ** 96) ** 2; //actually we should mul each other's token decimal  like const finalPrice*10**6  =10**18 (Number(sqrtPriceX96) / 2 ** 96) ** 2; to get eth final price in usd(usd has 6 decimal)
         } else {
           compPrice = 1 / (Number(sqrtPriceX96) / 2 ** 96) ** 2;
@@ -203,7 +202,9 @@ export const useModuleStats = (update, moduleAddress) => {
         try {
           const githubData1 = await axios.get('https://api.github.com/repos/' + gitrepo);
           githubData = githubData1.data;
-        } catch (e) {}
+        } catch (e) {
+          console.log('e', e);
+        }
         setStats({
           loading: false,
           moduleInfo: {

@@ -70,10 +70,10 @@ export default function ModuleDetailView({ moduleAddress }) {
   }, [address, stats]);
 
   const visitModule = () => {
-    window.open(contract['default'].scanURL + moduleAddress);
+    window.open(contract.default.scanURL + moduleAddress);
   };
   const visitToken = () => {
-    window.open(contract['default'].scanURL + stats.moduleInfo.ca);
+    window.open(contract.default.scanURL + stats.moduleInfo.ca);
   };
 
   const renderSkeleton = <ModuleSkeleton />;
@@ -108,7 +108,7 @@ export default function ModuleDetailView({ moduleAddress }) {
             <Tab
               key={tab.value}
               value={tab.value}
-              label={tab.value == 'site' ? stats.moduleInfo.tokenName : 'Github'}
+              label={tab.value === 'site' ? stats.moduleInfo.tokenName : 'Github'}
             />
           ))}
         </Tabs>
@@ -132,7 +132,7 @@ export default function ModuleDetailView({ moduleAddress }) {
           Token Symbol: {fShortenString(stats.moduleInfo.symbol)}
         </Box>
       </Stack>
-      {currentTab == 'site' ? (
+      {currentTab === 'site' ? (
         <Box
           key="site"
           sx={{
@@ -175,7 +175,7 @@ export default function ModuleDetailView({ moduleAddress }) {
 
       {stats.loading && renderSkeleton}
 
-      {visitStats.type == 'error' || stats.error ? renderError : renderModule}
+      {visitStats.type === 'error' || stats.error ? renderError : renderModule}
     </Container>
   );
 }
