@@ -13,6 +13,7 @@ import { _socials } from 'src/_mock';
 // components
 import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
+import { useRouter } from 'src/routes/hooks';
 
 import { usePopover } from 'src/components/custom-popover';
 import { contract } from '../../constant/contract';
@@ -27,7 +28,7 @@ export default function ProjectCard({ module, setUpdater }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   // const theme = useTheme();
-  // const router = useRouter();
+  const router = useRouter();
   const {
     moduleAddress,
     tokenName,
@@ -37,6 +38,7 @@ export default function ProjectCard({ module, setUpdater }) {
     totalSupply,
     moduleDetails,
     holders,
+    compHolders,
     emission,
     creator,
   } = module;
@@ -100,7 +102,9 @@ export default function ProjectCard({ module, setUpdater }) {
     });
   }
 
-  const popover = usePopover();
+  const useModule = async () => {
+    router.push(`${moduleAddress}/detail`);
+  };
 
   const renderSocials = (
     <Stack
@@ -222,7 +226,6 @@ export default function ProjectCard({ module, setUpdater }) {
             <Iconify
               icon="material-symbols:captive-portal"
               sx={{ color: 'error.main', cursor: 'pointer' }}
-              onClick={() => window.open(site)}
             />
           ),
           key: 1,
@@ -233,15 +236,19 @@ export default function ProjectCard({ module, setUpdater }) {
             <Iconify
               icon="material-symbols:deployed-code-outline-sharp"
               sx={{ color: 'info.main', cursor: 'pointer' }}
-              onClick={() => window.open(github)}
             />
           ),
           key: 2,
         },
         {
-          label: `${holders.length} Stakers`,
+          label: `${holders.length} ${tokenSymbol} Stakers`,
           icon: <Iconify icon="solar:users-group-rounded-bold" sx={{ color: 'primary.main' }} />,
           key: 3,
+        },
+        {
+          label: `${compHolders.length} COMP Stakers`,
+          icon: <Iconify icon="solar:users-group-rounded-bold" sx={{ color: 'primary.main' }} />,
+          key: 4,
         },
       ].map((item) => (
         <Stack
@@ -268,7 +275,9 @@ export default function ProjectCard({ module, setUpdater }) {
             borderColor: 'primary.main',
             boxShadow: 9, // Move the card up when hovered
           },
+          cursor: 'pointer',
         }}
+        onDoubleClick={useModule}
       >
         {renderImages}
 

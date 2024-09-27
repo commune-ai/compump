@@ -1,7 +1,12 @@
 import * as Yup from 'yup';
+import { forwardRef } from 'react';
+import { erc20Abi } from 'viem';
+import { useState } from 'react';
+// @mui
+import Slide from '@mui/material/Slide';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import { Box, Divider } from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
@@ -24,11 +29,16 @@ import { config } from 'src/config';
 
 import { contract } from '../../constant/contract';
 import moduleFactoryAbi from '../../constant/moduleFactory.json';
+import { useCompInfo } from './helper/useStats';
 
-export default function CreateForm() {
+export default function CreateForm({ setUpdater }) {
   const chainId = useChainId();
   const router = useRouter();
   const { address } = useAccount();
+  const compStats = useCompInfo();
+  const [v3poolAddress, setV3poolAddress] = useState('');
+  const [moduleAddress, setModuleAddress] = useState('');
+
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Token name is required'),
@@ -37,6 +47,7 @@ export default function CreateForm() {
     site: Yup.string().url('Must be a valid URL').required('Site should exist'),
     github: Yup.string().url('Must be a valid URL').required('Code should exist'),
     avatarUrl: Yup.string().url('Must be a valid URL').nullable(),
+    compAmt: Yup.number().required('Please input Comp amount you want to make pool'),
     facebook: Yup.string(),
     linkedin: Yup.string(),
     instagram: Yup.string(),
@@ -49,12 +60,14 @@ export default function CreateForm() {
     site: '',
     github: '',
     avatarUrl: '',
+    compAmt: 1,
     facebook: '',
     linkedin: '',
     instagram: '',
     twitter: '',
   };
   const dialog = useBoolean();
+  const poolDialog = useBoolean();
   const methods = useForm({
     resolver: yupResolver(NewUserSchema),
     defaultValues,
@@ -68,9 +81,14 @@ export default function CreateForm() {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const gotoPool = () => {
+    window.open(`https://app.uniswap.org/#/pool/${v3poolAddress}`);
+    poolDialog.onFalse();
+  };
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if (address) {
+      if (address || chainId) {
         try {
           // For adding admin Module Factory
 
@@ -98,30 +116,62 @@ export default function CreateForm() {
           // });
           // const response = await waitForTransactionReceipt(config, { hash: result1 });
           // console.log('response', response);
-
-          const tokenAddress = '0x0000000000000000000000000000000000000000';
-          const moduleFactoryAddress = contract[chainId].moduleFactory;
-          const para = [
-            tokenAddress,
-            data.emission * 10 ** 4,
-            `${data.avatarUrl}$#$${data.facebook}$#$${data.linkedin}$#$${data.instagram}$#$${data.twitter}$#$${data.site}$#$${data.github}`,
-            [data.name, data.symbol],
-          ];
-          const result = await writeContract(config, {
-            abi: moduleFactoryAbi,
-            address: moduleFactoryAddress,
-            functionName: 'createComPump',
-            args: para,
-          });
-          const response = await waitForTransactionReceipt(config, { hash: result });
-          console.log('response', response);
-          if (response != null) {
-            if (response && response.status && response.status === 'success') {
-              enqueueSnackbar('Module created successfully!', { variant: 'success' });
-              const moduleAddress = response.logs[4].address;
-              dialog.onFalse();
-              // router.push(`/dashboard/${moduleAddress}/detail`);
+          if (compStats.tokenBalance > data.compAmt) {
+            const tokenAddress = '0x0000000000000000000000000000000000000000';
+            const moduleFactoryAddress = contract[chainId].moduleFactory;
+            const para = [
+              tokenAddress,
+              data.emission * 10 ** 4,
+              data.compAmt * 10 ** 18,
+              `${data.avatarUrl}$#$${data.facebook}$#$${data.linkedin}$#$${data.instagram}$#$${data.twitter}$#$${data.site}$#$${data.github}`,
+              [data.name, data.symbol],
+            ];
+            if (compStats.allowance < data.compAmt) {
+              const compAddress = contract[chainId].compToken;
+              // const amtToApprove = data.compAmt - compStats.allowance;
+              console.log('data.compAmt', data.compAmt);
+              const result1 = await writeContract(config, {
+                abi: erc20Abi,
+                address: compAddress,
+                functionName: 'approve',
+                args: [moduleFactoryAddress, data.compAmt * 10 ** 18],
+              });
+              const response1 = await waitForTransactionReceipt(config, { hash: result1 });
+              if (response1 != null) {
+                if (response1 && response1.status && response1.status === 'success') {
+                  enqueueSnackbar('COMP approved successfully!', { variant: 'success' });
+                  // router.push(`/dashboard/${moduleAddress}/detail`);
+                } else {
+                  enqueueSnackbar('Issue with approve!', { variant: 'error' });
+                  return;
+                }
+              }
             }
+            const result = await writeContract(config, {
+              abi: moduleFactoryAbi,
+              address: moduleFactoryAddress,
+              functionName: 'createComPump',
+              args: para,
+              value: 0,
+            });
+            const response = await waitForTransactionReceipt(config, { hash: result });
+            console.log('response', response);
+            if (response != null) {
+              if (response && response.status && response.status === 'success') {
+                enqueueSnackbar('Module created successfully!', { variant: 'success' });
+                const v3PairAddress = response.logs[13].address;
+                const moduleAddrTmp = response.logs[5].address;
+                setV3poolAddress(v3PairAddress);
+                setModuleAddress(moduleAddrTmp);
+                dialog.onFalse();
+                setUpdater(new Date());
+                poolDialog.onTrue();
+              }
+            }
+          } else {
+            enqueueSnackbar(`You don't have enoguth COMP token in your wallet!`, {
+              variant: 'info',
+            });
           }
 
           // console.info('DATA', data);
@@ -140,6 +190,7 @@ export default function CreateForm() {
         });
     }
   });
+  const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
   return (
     <>
       <Button variant="contained" color="primary" onClick={dialog.onTrue}>
@@ -173,6 +224,20 @@ export default function CreateForm() {
               <RHFTextField name="github" label="Git Link*" />
             </Box>
             <Box mt={3}>
+              <Typography>You have {compStats.tokenBalance} COMP in your wallet</Typography>
+            </Box>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+              }}
+              pt={2}
+            >
+              <RHFTextField name="compAmt" label="Comp Amount*" />
+            </Box>
+            <Box mt={3}>
               <Divider>Socials</Divider>
             </Box>
 
@@ -202,6 +267,36 @@ export default function CreateForm() {
             </LoadingButton>
           </DialogActions>
         </FormProvider>
+      </Dialog>
+      <Dialog
+        keepMounted
+        open={poolDialog.value}
+        TransitionComponent={Transition}
+        onClose={poolDialog.onFalse}
+      >
+        <DialogTitle>{`Visit your pool created on uniswapV3?`}</DialogTitle>
+
+        <DialogContent sx={{ color: 'text.secondary' }}>
+          <div>
+            -Please Save your module Address(
+            <a style={{ color: 'yellow' }} href={contract['default'].scanURL + moduleAddress}>
+              {moduleAddress}
+            </a>
+            ). You should transfer COMP token to your module to give Rewards for COMP staking.
+            <br />
+            -You've created pool paired with your token and COMP on uniswap V3. You can add more
+            liquidity there.
+          </div>
+        </DialogContent>
+
+        <DialogActions>
+          <Button variant="outlined" onClick={poolDialog.onFalse}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={gotoPool} autoFocus>
+            Visit
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );

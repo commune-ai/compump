@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { writeContract, waitForTransactionReceipt, readContract } from '@wagmi/core';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -28,6 +28,7 @@ import moduleAbi from '../../constant/module.json';
 
 export default function AdminAction({ module, setUpdater }) {
   const { address } = useAccount();
+  const [distributeLoading, setDistributeLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
     emission: Yup.number().min(0, 'Emission must not be below 0').required('Emission is required'),
@@ -123,8 +124,9 @@ export default function AdminAction({ module, setUpdater }) {
   });
   const handleDistribute = async () => {
     try {
+      setDistributeLoading(true);
       if (address) {
-        if (module.holders.length > 0) {
+        if (module.holders.length > 0 || module.compHolders.length > 0) {
           const result = await writeContract(config, {
             abi: moduleAbi,
             address: module.moduleAddress,
@@ -147,7 +149,9 @@ export default function AdminAction({ module, setUpdater }) {
           variant: 'info',
         });
       }
+      setDistributeLoading(false);
     } catch (e) {
+      setDistributeLoading(false);
       if (e.message.includes('User rejected the request'))
         enqueueSnackbar(`User rejected the request!`, {
           variant: 'info',
@@ -164,18 +168,19 @@ export default function AdminAction({ module, setUpdater }) {
       }}
     >
       <Stack direction="row" spacing={2}>
-        <Button
+        <LoadingButton
           fullWidth
           disabled={Number(module?.totalStaked) === 0}
           size="large"
           color="warning"
           variant="contained"
+          loading={distributeLoading}
           // startIcon={<Iconify icon="solar:cart-plus-bold" width={24} />}
           onClick={handleDistribute}
           // sx={{ whiteSpace: 'nowrap' }}
         >
           Distribute
-        </Button>
+        </LoadingButton>
 
         <Button fullWidth size="large" variant="contained" onClick={dialog.onTrue}>
           Edit Module Info

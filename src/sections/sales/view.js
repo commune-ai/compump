@@ -19,7 +19,9 @@ import Iconify from 'src/components/iconify';
 import ProjectCard from './project-card';
 import CreateForm from '../create/create-dialog';
 import { useCommonStats, useMyStakeStats } from './helper/useStats';
+import { Button } from '@mui/material';
 // ----------------------------------------------------------------------
+import { contract } from '../../constant/contract';
 
 const defaultFilters = {
   publish: 'all',
@@ -72,6 +74,11 @@ export default function SalesList() {
     },
     [handleFilters]
   );
+  const buyComp = () => {
+    window.open(
+      `https://app.uniswap.org/swap?outputCurrency=${contract['default'].compToken}&chain=ethereum&use=V3`
+    );
+  };
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       {/* <Typography variant="h4"> Page One </Typography> */}
@@ -86,19 +93,34 @@ export default function SalesList() {
           border: (theme) => `dashed 1px ${theme.palette.divider}`,
         }}
       /> */}
-      <Box
-        sx={{
-          marginTop: '15px',
-          marginBottom: '15px',
-        }}
-      >
-        <CreateForm />
-      </Box>
+
       <Grid container spacing={3} sx={{ justifyContent: 'space-between' }}>
         <Box
           sx={{
-            marginTop: '15px',
+            marginTop: '25px',
             marginLeft: '15px',
+          }}
+        >
+          <CreateForm setUpdater={setUpdater} />
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              marginLeft: { xs: '0px', sm: '20px' },
+              marginTop: { xs: 1, sm: 0 },
+              width: { xs: '70%', sm: 'auto' },
+            }}
+            sm={12}
+            onClick={buyComp}
+          >
+            Buy COMP
+          </Button>
+        </Box>
+        <Box flexGrow={1}></Box>
+        <Box
+          sx={{
+            marginTop: '10px',
+            // marginLeft: '15px',
           }}
         >
           <Tabs
@@ -129,7 +151,14 @@ export default function SalesList() {
             ))}
           </Tabs>
         </Box>
-        <Box sx={{ paddingRight: '20px' }}>
+        <Box
+          sx={{
+            paddingRight: '20px',
+            marginTop: '15px',
+            marginLeft: '25px',
+            marginBottom: { xs: 2, sm: 2 },
+          }}
+        >
           <TextField
             // {...params}
             placeholder="Search..."

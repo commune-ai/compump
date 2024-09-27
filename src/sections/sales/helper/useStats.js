@@ -27,6 +27,7 @@ export const useCommonStats = (update) => {
           args: [0, Number(data)],
         });
         setStats(modules);
+        console.log('modules', modules);
       }
     } catch (e) {
       console.log('E', e);

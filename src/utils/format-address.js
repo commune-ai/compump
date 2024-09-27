@@ -4,6 +4,6 @@ export function fShortenString(address) {
 }
 
 export function fShortenLink(link) {
-  if (link?.length <= 40) return link;
-  return link?.substring(0, 40) + '...';
+  if (link?.length <= 35) return link;
+  return link?.substring(0, 35) + '...';
 }

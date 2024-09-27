@@ -1,5 +1,15 @@
 [
   {
+    "inputs": [],
+    "name": "InvalidInitialization",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitializing",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -10,6 +20,19 @@
       }
     ],
     "name": "ContributionUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "version",
+        "type": "uint64"
+      }
+    ],
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -224,14 +247,9 @@
             "type": "address[]"
           },
           {
-            "internalType": "uint256",
-            "name": "totalSupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalRaised",
-            "type": "uint256"
+            "internalType": "address[]",
+            "name": "compHolders",
+            "type": "address[]"
           },
           {
             "internalType": "uint256",
@@ -242,6 +260,16 @@
             "internalType": "address",
             "name": "creator",
             "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "v3Pair",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           }
         ],
         "internalType": "struct ModuleManager.CumulativeLockInfo[]",
@@ -375,14 +403,9 @@
             "type": "address[]"
           },
           {
-            "internalType": "uint256",
-            "name": "totalSupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalRaised",
-            "type": "uint256"
+            "internalType": "address[]",
+            "name": "compHolders",
+            "type": "address[]"
           },
           {
             "internalType": "uint256",
@@ -393,6 +416,16 @@
             "internalType": "address",
             "name": "creator",
             "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "v3Pair",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           }
         ],
         "internalType": "struct ModuleManager.CumulativeLockInfo[]",
