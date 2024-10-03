@@ -1,5 +1,5 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-import { arbitrum, mainnet, sepolia } from 'wagmi/chains'
+import { sepolia } from 'wagmi/chains'
 
 
 

@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { writeContract, waitForTransactionReceipt } from '@wagmi/core';
 
 import Dialog from '@mui/material/Dialog';

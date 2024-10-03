@@ -1,158 +1,50 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useAccount, useCall, useChainId } from 'wagmi';
+import { useEffect } from 'react';
 
 // @mui
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import TextField from '@mui/material/TextField';
+
 import Grid from '@mui/material/Unstable_Grid2';
-import InputAdornment from '@mui/material/InputAdornment';
 
 // components
-import Label from 'src/components/label';
+import Loading from 'src/app/loading';
+import { useSearchFilter } from 'src/context/SearchFilterContext';
 import { useSettingsContext } from 'src/components/settings';
-import Iconify from 'src/components/iconify';
 import ProjectCard from './project-card';
-import CreateForm from '../create/create-dialog';
 import { useCommonStats, useMyStakeStats } from './helper/useStats';
 // ----------------------------------------------------------------------
 
-const defaultFilters = {
-  publish: 'all',
-};
-
 export default function SalesList() {
   const settings = useSettingsContext();
-  const [updater, setUpdater] = useState(1);
-  const stats = useCommonStats(updater);
-  const myStats = useMyStakeStats(updater);
-  const [searchStats, setSearchStats] = useState(stats);
-  const [searchMyStats, setSearchMyStats] = useState(myStats);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [filters, setFilters] = useState(defaultFilters);
+  const { filteredStats, filteredMyStats, filters, setStats, setMyStats } = useSearchFilter();
+
+  const commonStats = useCommonStats();
+  const myStakeStats = useMyStakeStats();
+
   useEffect(() => {
-    setSearchStats(stats);
-    setSearchMyStats(myStats);
-  }, [stats, myStats]);
-  const handleChange = (e) => {
-    setSearchLoading(true);
-    const searchResults1 = stats.filter(
-      (stat) =>
-        stat.moduleAddress.includes(e.target.value) ||
-        stat.token.includes(e.target.value) ||
-        stat.tokenName.includes(e.target.value) ||
-        stat.tokenSymbol.includes(e.target.value) ||
-        stat.moduleDetails.includes(e.target.value)
-    );
-    setSearchStats(searchResults1);
-    const searchResults2 = myStats.filter(
-      (stat) =>
-        stat.moduleAddress.includes(e.target.value) ||
-        stat.token.includes(e.target.value) ||
-        stat.tokenName.includes(e.target.value) ||
-        stat.tokenSymbol.includes(e.target.value) ||
-        stat.moduleDetails.includes(e.target.value)
-    );
-    setSearchMyStats(searchResults2);
-    setSearchLoading(false);
-  };
-  const handleFilters = useCallback((name, value) => {
-    setFilters((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  }, []);
-  const handleFilterPublish = useCallback(
-    (event, newValue) => {
-      handleFilters('publish', newValue);
-    },
-    [handleFilters]
-  );
+    if (commonStats.length > 0) {
+      setStats(commonStats);
+    }
+    if (myStakeStats.length > 0) {
+      setMyStats(myStakeStats);
+    }
+  }, [commonStats, myStakeStats, setStats, setMyStats]);
+
+  if (commonStats.length === 0 && myStakeStats.length === 0) {
+    return <Loading />;
+  }
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-      {/* <Typography variant="h4"> Page One </Typography> */}
-
-      {/* <Box
-        sx={{
-          mt: 5,
-          width: 1,
-          height: 320,
-          borderRadius: 2,
-          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
-          border: (theme) => `dashed 1px ${theme.palette.divider}`,
-        }}
-      /> */}
-      <Box
-        sx={{
-          marginTop: '15px',
-          marginBottom: '15px',
-        }}
-      >
-        <CreateForm />
-      </Box>
-      <Grid container spacing={3} sx={{ justifyContent: 'space-between' }}>
+      <Grid container spacing={3}>        
         <Box
           sx={{
-            marginTop: '15px',
+            marginTop: '40px',
             marginLeft: '15px',
           }}
-        >
-          <Tabs
-            value={filters.publish}
-            onChange={handleFilterPublish}
-            sx={{
-              mb: { xs: 3, md: 5 },
-            }}
-          >
-            {['all', 'my contribution'].map((tab) => (
-              <Tab
-                key={tab}
-                iconPosition="end"
-                value={tab}
-                label={tab}
-                icon={
-                  <Label
-                    variant={(tab === 'all' && 'filled') || 'soft'}
-                    color={(tab === 'all' && 'primary') || 'info'}
-                  >
-                    {tab === 'all' && stats.length}
-
-                    {tab === 'my contribution' && myStats.length}
-                  </Label>
-                }
-                sx={{ textTransform: 'capitalize' }}
-              />
-            ))}
-          </Tabs>
-        </Box>
-        <Box sx={{ paddingRight: '20px' }}>
-          <TextField
-            // {...params}
-            placeholder="Search..."
-            // onKeyUp={handleKeyUp}
-            InputProps={{
-              // ...params.InputProps,
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ ml: 1, color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <>
-                  {searchLoading ? (
-                    <Iconify icon="svg-spinners:8-dots-rotate" sx={{ mr: -3 }} />
-                  ) : null}
-                  {/* {params.InputProps.endAdornment} */}
-                </>
-              ),
-            }}
-            onChange={handleChange}
-          />
-        </Box>
+        ></Box>
       </Grid>
       <Box
         gap={3}
@@ -163,12 +55,10 @@ export default function SalesList() {
           md: 'repeat(4, 1fr)',
         }}
       >
-        {filters.publish === 'all'
-          ? searchStats.map((stat) => (
-              <ProjectCard key={stat.moduleAddress} module={stat} setUpdater={setUpdater} />
-            ))
-          : searchMyStats.map((myStat) => (
-              <ProjectCard key={myStat.moduleAddress} module={myStat} setUpdater={setUpdater} />
+        {filters?.publish === 'all'
+          ? filteredStats.map((stat) => <ProjectCard key={stat.moduleAddress} module={stat} />)
+          : filteredMyStats.map((myStat) => (
+              <ProjectCard key={myStat.moduleAddress} module={myStat} />
             ))}
       </Box>
     </Container>

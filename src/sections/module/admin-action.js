@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { useEffect } from 'react';
-import { writeContract, waitForTransactionReceipt, readContract } from '@wagmi/core';
-import { useAccount, useChainId } from 'wagmi';
+import { writeContract, waitForTransactionReceipt } from '@wagmi/core';
+import { useAccount } from 'wagmi';
 
 import Dialog from '@mui/material/Dialog';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // hooks
@@ -57,9 +57,6 @@ export default function AdminAction({ module, setUpdater }) {
 
   const {
     reset,
-    watch,
-    control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;

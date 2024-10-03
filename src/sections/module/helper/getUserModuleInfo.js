@@ -1,4 +1,3 @@
-import { useEffect, useState, useCallback } from 'react';
 import { readContract } from '@wagmi/core';
 import { erc20Abi } from 'viem';
 
@@ -33,10 +32,14 @@ export const fetchModuleInfo = async (moduleAddress, tokenAddress, address) => {
       const userStaked = Number((Number(data1) / 10 ** 18).toFixed(2));
       const userRewards = Number((Number(data2) / 10 ** 18).toFixed(2));
       const tokenBalance = Number((Number(data3) / 10 ** 18).toFixed(2));
+
       return { userStaked, userRewards, tokenBalance };
     }
+
+    return { userStaked: 0, userRewards: 0, tokenBalance: 0 };
+
   } catch (e) {
-    console.log('fetchmodule info failure', e);
+    console.log('fetch module info failure', e);
     return { userStaked: 0, userRewards: 0, tokenBalance: 0 };
   }
 };

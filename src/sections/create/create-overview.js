@@ -1,31 +1,29 @@
 import PropTypes from 'prop-types';
 // @mui
-import { useTheme, alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 // theme
-import { bgGradient } from 'src/theme/css';
 
 // ----------------------------------------------------------------------
 
 export default function CreateOverview({ title, description, action, img, ...other }) {
-  const theme = useTheme();
 
   return (
     <Stack
       flexDirection={{ xs: 'column', md: 'row' }}
       sx={{
-        ...bgGradient({
-          direction: '135deg',
-          startColor: alpha(theme.palette.primary.light, 0.2),
-          endColor: alpha(theme.palette.primary.main, 0.2),
-        }),
+        // ...bgGradient({
+        //   direction: '135deg',
+        //   startColor: alpha(theme.palette.primary.light, 0.2),
+        //   endColor: alpha(theme.palette.primary.main, 0.2),
+        // }),
+        padding: 0,
         height: { md: 1 },
         borderRadius: 2,
         position: 'relative',
         color: '#13ccd9',
-        backgroundColor: 'common.white',
-        background: "url('/assets/background/dbg2.jpg') no-repeat"
+        // backgroundColor: 'common.white',
+        // background: "url('/assets/background/dbg2.jpg') no-repeat"
       }}
       {...other}
     >
@@ -34,10 +32,10 @@ export default function CreateOverview({ title, description, action, img, ...oth
         justifyContent="center"
         alignItems={{ xs: 'center', md: 'flex-start' }}
         sx={{
-          p: {
-            xs: theme.spacing(5, 3, 0, 3),
-            md: theme.spacing(5),
-          },
+          // p: {
+          //   xs: theme.spacing(5, 3, 0, 3),
+          //   md: theme.spacing(5),
+          // },
           textAlign: { xs: 'center', md: 'left' },
           zIndex: 1
         }}

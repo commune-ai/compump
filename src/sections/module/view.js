@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 // @mui
@@ -42,11 +42,6 @@ export default function ModuleDetailView({ moduleAddress }) {
   const { address } = useAccount();
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const [currentTab, setCurrentTab] = useState('description');
-
-  const handleChangeTab = useCallback((event, newValue) => {
-    setCurrentTab(newValue);
-  }, []);
 
   useEffect(() => {
     if (address && address === stats.moduleInfo.creator) {
@@ -77,7 +72,7 @@ export default function ModuleDetailView({ moduleAddress }) {
   );
 
   const renderModule = (
-    <>
+    
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
         <Grid xs={12} md={6} lg={7}>
           <Box
@@ -215,7 +210,7 @@ export default function ModuleDetailView({ moduleAddress }) {
           </Stack>
         </Grid>
       </Grid>
-    </>
+  
   );
 
   return (
