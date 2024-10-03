@@ -8,27 +8,38 @@ import { alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 // routes
 import { RouterLink } from 'src/routes/components';
 // components
 import Iconify from 'src/components/iconify';
 import EmptyContent from 'src/components/empty-content';
 import { useSettingsContext } from 'src/components/settings';
-import Image from 'src/components/image';
-import { contract } from 'src/constant/contract';
 import { fShortenString } from 'src/utils/format-address';
+import { contract } from 'src/constant/contract';
 
 //
 import { ModuleSkeleton } from './module-skeleton';
-import AdminAction from './admin-action';
-import UserAction from './user-action';
 
-import { useModuleStats } from './helper/useStats';
+import { useVisitStats, useModuleStats } from './helper/useStats';
+
+// ----------------------------------------------------------------------
+
+const TABS = [
+  {
+    value: 'site',
+    icon: <Iconify icon="solar:phone-bold" width={24} />,
+    label: 'Site',
+  },
+  {
+    value: 'github',
+    icon: <Iconify icon="solar:heart-bold" width={24} />,
+    label: 'Github',
+  },
+];
 
 // ----------------------------------------------------------------------
 
@@ -36,9 +47,11 @@ export default function ModuleDetailView({ moduleAddress }) {
   const theme = useTheme();
   const settings = useSettingsContext();
 
-  //   const checkout = useCheckoutContext();
   const [updater, setUpdater] = useState('1');
+
   const stats = useModuleStats(updater, moduleAddress);
+  const visitStats = useVisitStats(stats, moduleAddress);
+
   const { address } = useAccount();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -51,12 +64,19 @@ export default function ModuleDetailView({ moduleAddress }) {
     }
   }, [address, stats]);
 
+  const visitModule = () => {
+    window.open(contract.default.scanURL + moduleAddress);
+  };
+  const visitToken = () => {
+    window.open(contract.default.scanURL + stats.moduleInfo.ca);
+  };
+
   const renderSkeleton = <ModuleSkeleton />;
 
   const renderError = (
     <EmptyContent
       filled
-      title={`${stats.error?.message}`}
+      title={`${visitStats.message}`}
       action={
         <Button
           component={RouterLink}
@@ -70,8 +90,8 @@ export default function ModuleDetailView({ moduleAddress }) {
       sx={{ py: 10 }}
     />
   );
-
   const renderModule = (
+
     
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
         <Grid xs={12} md={6} lg={7}>
@@ -212,20 +232,13 @@ export default function ModuleDetailView({ moduleAddress }) {
       </Grid>
   
   );
-
   return (
-    <Container
-      maxWidth={settings.themeStretch ? false : 'lg'}
-      sx={{
-        mt: 5,
-        mb: 15,
-      }}
-    >
+    <Container maxWidth="false">
       {/* <CartIcon totalItems={checkout.totalItems} /> */}
 
       {stats.loading && renderSkeleton}
 
-      {stats.error ? renderError : renderModule}
+      {visitStats.type === 'error' || stats.error ? renderError : renderModule}
     </Container>
   );
 }

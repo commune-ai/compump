@@ -15,6 +15,7 @@ import { useSettingsContext } from 'src/components/settings';
 import ProjectCard from './project-card';
 import { useCommonStats, useMyStakeStats } from './helper/useStats';
 // ----------------------------------------------------------------------
+import { contract } from '../../constant/contract';
 
 export default function SalesList() {
   const settings = useSettingsContext();
@@ -24,6 +25,7 @@ export default function SalesList() {
   const myStakeStats = useMyStakeStats();
 
   useEffect(() => {
+
     if (commonStats.length > 0) {
       setStats(commonStats);
     }
@@ -45,6 +47,7 @@ export default function SalesList() {
             marginLeft: '15px',
           }}
         ></Box>
+
       </Grid>
       <Box
         gap={3}

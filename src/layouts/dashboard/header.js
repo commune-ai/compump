@@ -116,6 +116,7 @@ export default function Header({ onOpenNav  }) {
   return (
     <AppBar
       sx={{
+        // borderBottom: '1px solid #32a1ce;',
         height: HEADER.H_MOBILE,
         zIndex: theme.zIndex.appBar + 1,
         ...bgBlur({

@@ -1,20 +1,18 @@
-import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
-import { sepolia } from 'wagmi/chains'
-
-
+import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
+import { baseSepolia } from 'wagmi/chains';
 
 // 1. Get projectId from https://cloud.walletconnect.com
-const projectId = '3e205ec1e2f65ac244dd2b4a8099d004'
+const projectId = '3e205ec1e2f65ac244dd2b4a8099d004';
 
 // 2. Create wagmiConfig
 const metadata = {
   name: 'AppKit',
   description: 'AppKit Example',
   url: 'https://web3modal.com', // origin must match your domain & subdomain
-  icons: ['https://avatars.githubusercontent.com/u/37784886']
-}
+  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+};
 
-const chains = [sepolia]
+const chains = [baseSepolia];
 export const config = defaultWagmiConfig({
   chains,
   projectId,
@@ -24,5 +22,5 @@ export const config = defaultWagmiConfig({
     socials: [],
     // showWallets: false,
     // walletFeatures: false
-  }
-})
+  },
+});

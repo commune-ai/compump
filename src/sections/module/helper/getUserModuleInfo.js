@@ -2,7 +2,8 @@ import { readContract } from '@wagmi/core';
 import { erc20Abi } from 'viem';
 
 import { config } from 'src/config';
-
+import { contract } from 'src/constant/contract';
+import { getFixedNumer } from 'src/utils/format-bigint-tofixed';
 import moduleAbi from '../../../constant/module.json';
 
 export const fetchModuleInfo = async (moduleAddress, tokenAddress, address) => {
@@ -15,11 +16,17 @@ export const fetchModuleInfo = async (moduleAddress, tokenAddress, address) => {
         args: [address],
       });
 
-      const data2 = await readContract(config, {
+      const tokenRewardsAccTmp = await readContract(config, {
         address: moduleAddress,
         abi: moduleAbi,
         functionName: 'earned',
-        args: [address],
+        args: [address, tokenAddress],
+      });
+      const compRewardsAccTmp = await readContract(config, {
+        address: moduleAddress,
+        abi: moduleAbi,
+        functionName: 'earned',
+        args: [address, contract.default.compToken],
       });
 
       const data3 = await readContract(config, {
@@ -28,18 +35,34 @@ export const fetchModuleInfo = async (moduleAddress, tokenAddress, address) => {
         functionName: 'balanceOf',
         args: [address],
       });
+      const compBalTmp = await readContract(config, {
+        address: contract.default.compToken,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [address],
+      });
 
-      const userStaked = Number((Number(data1) / 10 ** 18).toFixed(2));
-      const userRewards = Number((Number(data2) / 10 ** 18).toFixed(2));
-      const tokenBalance = Number((Number(data3) / 10 ** 18).toFixed(2));
-
-      return { userStaked, userRewards, tokenBalance };
+      const userStaked = getFixedNumer(data1[0], 18, 2);
+      const compStaked = getFixedNumer(data1[1], 18, 2);
+      const tokenRewardsAcc = getFixedNumer(tokenRewardsAccTmp, 18, 2);
+      const compRewardAcc = getFixedNumer(compRewardsAccTmp, 18, 2);
+      const tokenBalance = getFixedNumer(data3, 18, 2);
+      const compBalance = getFixedNumer(compBalTmp, 18, 2);
+      return { userStaked, compStaked, tokenRewardsAcc, compRewardAcc, tokenBalance, compBalance };
     }
 
     return { userStaked: 0, userRewards: 0, tokenBalance: 0 };
 
   } catch (e) {
-    console.log('fetch module info failure', e);
-    return { userStaked: 0, userRewards: 0, tokenBalance: 0 };
+
+    console.log('fetchmodule info failure', e);
+    return {
+      userStaked: 0,
+      compStaked: 0,
+      tokenRewardsAcc: 0,
+      compRewardAcc: 0,
+      tokenBalance: 0,
+      compBalance: 0,
+    };
   }
 };

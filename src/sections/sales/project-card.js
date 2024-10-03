@@ -28,6 +28,7 @@ export default function ProjectCard({ module, setUpdater }) {
     tokenSymbol,
     moduleDetails,
     holders,
+    compHolders,
     emission,
     creator,
   } = module;
@@ -60,6 +61,7 @@ export default function ProjectCard({ module, setUpdater }) {
     { color: '#8A2BE2', icon: 'ant-design:instagram-filled', name: 'Instagram', path: instagram },
     { color: '#1DA1F2', icon: 'eva:twitter-fill', name: 'Twitter', path: twitter },
   ].filter(social => social.path);
+
 
   const renderSocials = (
     <Stack
@@ -183,8 +185,10 @@ export default function ProjectCard({ module, setUpdater }) {
           icon: (
             <Iconify
               icon="material-symbols:captive-portal"
+
               sx={{ color: '#FF69B4', cursor: 'pointer', fontSize: '22px' }}
               onClick={() => window.open(site)}
+
             />
           ),
         },
@@ -193,23 +197,28 @@ export default function ProjectCard({ module, setUpdater }) {
           icon: (
             <Iconify
               icon="material-symbols:deployed-code-outline-sharp"
+
               sx={{ color: '#4F9FF5', cursor: 'pointer', fontSize: '22px' }}
               onClick={() => window.open(github)}
+
             />
           ),
         },
         {
+
           label: `${holders.length} Stakers`,
           icon: <Iconify icon="solar:users-group-rounded-bold" sx={{ color: '#8A2BE2', fontSize: '22px' }} />,
         },
       ].map((item, index) => (
         <Stack key={index} direction="row" alignItems="center" spacing={1}>
+
           {item.icon}
           {item.label}
         </Stack>
       ))}
     </Stack>
   );
+
 
   const renderFooterButtons = isAdmin ? (
     <AdminAction
@@ -248,6 +257,7 @@ export default function ProjectCard({ module, setUpdater }) {
       }}
     />
   );
+
 
   return (
     <Card
