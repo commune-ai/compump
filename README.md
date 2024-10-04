@@ -16,9 +16,9 @@
 Documentation.
 -Module Creation
 This platform is used to create module and token.
-Users can create Module using "Create Meme Coin & Module" button
+Users can create Module using "Create Meme Coin & Module" button.
 To create module, users need to have COMP token(platform token).
-While creationg, new module token and COMP token will be paired on uniswapV3 pool.
+While creating, new module token and COMP token will be paired on uniswapV3 pool.
 -Module usage
 Once module created, users can use that module by double clicking on that module card.
 Each module has 10 free times for new users can use.
