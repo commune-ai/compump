@@ -4,13 +4,16 @@ import PropTypes from 'prop-types';
 // auth
 // components
 import DashboardLayout from 'src/layouts/dashboard';
+import { SearchFilterProvider } from 'src/context/SearchFilterContext';
 
 // ----------------------------------------------------------------------
 
 export default function Layout({ children }) {
   return (
     // <AuthGuard>
-    <DashboardLayout>{children}</DashboardLayout>
+    <SearchFilterProvider>
+      <DashboardLayout>{children}</DashboardLayout>
+    </SearchFilterProvider>
     // </AuthGuard>
   );
 }

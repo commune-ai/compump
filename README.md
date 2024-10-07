@@ -9,7 +9,7 @@
 
 ## USING NPM
 
-- npm i OR npm i --legacy-peer-deps
+- npm i --legacy-peer-deps
 - npm run dev
 
 

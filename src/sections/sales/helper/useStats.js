@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useAccount, useCall, useChainId } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import { readContract } from '@wagmi/core';
 
 import { config } from 'src/config';
@@ -42,7 +42,6 @@ export const useCommonStats = (update) => {
 };
 
 export const useMyStakeStats = (update) => {
-  const chainId = useChainId();
 
   const { address } = useAccount();
   const [stats, setStats] = useState([]);

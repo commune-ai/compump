@@ -22,8 +22,6 @@ import FormProvider, { RHFTextField } from 'src/components/hook-form';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useRouter } from 'src/routes/hooks';
-
 import { config } from 'src/config';
 
 import { contract } from '../../constant/contract';
@@ -32,7 +30,6 @@ import { useCompInfo } from './helper/useStats';
 
 export default function CreateForm({ setUpdater }) {
   const chainId = useChainId();
-  const router = useRouter();
   const { address } = useAccount();
   const compStats = useCompInfo();
   const [v3poolAddress, setV3poolAddress] = useState('');
@@ -73,10 +70,6 @@ export default function CreateForm({ setUpdater }) {
   });
 
   const {
-    reset,
-    watch,
-    control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -166,6 +159,7 @@ export default function CreateForm({ setUpdater }) {
                 setUpdater(new Date());
                 poolDialog.onTrue();
               }
+
             }
           } else {
             enqueueSnackbar(`You don't have enoguth COMP token in your wallet!`, {
@@ -192,7 +186,7 @@ export default function CreateForm({ setUpdater }) {
   const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
   return (
     <>
-      <Button variant="contained" color="primary" onClick={dialog.onTrue}>
+      <Button variant="contained" color="primary" onClick={dialog.onTrue} sx={{padding: '5px 20px', fontSize: "20px", minWidth:'300px'}}>
         Create Meme Coin & Module
       </Button>
       <Dialog open={dialog.value} onClose={dialog.onFalse}>
