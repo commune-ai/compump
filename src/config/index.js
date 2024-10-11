@@ -1,5 +1,5 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config';
-import { baseSepolia } from 'wagmi/chains';
+import { baseSepolia, abstractTestnet } from 'wagmi/chains';
 
 // 1. Get projectId from https://cloud.walletconnect.com
 const projectId = '3e205ec1e2f65ac244dd2b4a8099d004';
@@ -10,6 +10,24 @@ const metadata = {
   description: 'AppKit Example',
   url: 'https://web3modal.com', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/37784886'],
+};
+
+const communeTestNet = {
+  ...abstractTestnet,
+  id: 9461,
+  network: 'commune-testnet',
+  name: 'Commune Testnet',
+  nativeCurrency: { name: 'COMAI TEST', symbol: 'COMAI', decimals: 18 },
+  iconUrl: '/chains/comai.png',
+  iconBackground: 'transparent',
+  rpcUrls: {
+    default: {
+      http: ['https://testnet-commune-api-node-0.communeai.net'],
+    },
+    public: {
+      http: ['https://testnet-commune-api-node-0.communeai.net'],
+    },
+  },
 };
 
 const chains = [baseSepolia];

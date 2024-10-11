@@ -133,23 +133,23 @@ export default function UserAction({ module, setUpdater }) {
             }
           }
           const approveStatus = await approve(tokenAddrToStake, forms.staking * 10 ** 18);
-          if (approveStatus) {
-            const para = [forms.staking * 10 ** 18, tokenAddrToStake];
-            const result = await writeContract(config, {
-              abi: moduleAbi,
-              address: module.moduleAddress,
-              functionName: 'stake',
-              args: para,
-            });
-            const response = await waitForTransactionReceipt(config, { hash: result });
-            if (response != null) {
-              if (response && response.status && response.status === 'success') {
-                enqueueSnackbar('Staked successfully!', { variant: 'success' });
-                dialog.onFalse();
-                setUpdater(new Date());
-              }
+          // if (approveStatus) {
+          const para = [forms.staking * 10 ** 18, tokenAddrToStake];
+          const result = await writeContract(config, {
+            abi: moduleAbi,
+            address: module.moduleAddress,
+            functionName: 'stake',
+            args: para,
+          });
+          const response = await waitForTransactionReceipt(config, { hash: result });
+          if (response != null) {
+            if (response && response.status && response.status === 'success') {
+              enqueueSnackbar('Staked successfully!', { variant: 'success' });
+              dialog.onFalse();
+              setUpdater(new Date());
             }
           }
+          // }
         }
       } else {
         enqueueSnackbar('Please connect wallet!', {
